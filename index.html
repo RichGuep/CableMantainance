@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GMAO Doppelmayr - Vista Técnica Detallada</title>
+    <title>GMAO Doppelmayr - Alta Visibilidad</title>
     <style>
         * {
             box-sizing: border-box;
@@ -14,7 +14,7 @@
 
         body {
             overflow: hidden;
-            background-color: #111317;
+            background-color: #0b0c10; /* Fondo negro profundo texturizado */
             color: #fff;
         }
 
@@ -24,19 +24,19 @@
             display: block;
         }
 
-        /* Panel de Mantenimiento Avanzado */
+        /* Panel Lateral de Mantenimiento */
         #info-panel {
             position: absolute;
             top: 20px;
             right: 20px;
             width: 380px;
-            background: rgba(18, 22, 28, 0.95);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(15, 22, 36, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid #00adb5; /* Borde Cyan Tecnológico */
             border-radius: 12px;
             padding: 24px;
-            box-shadow: 0 12px 40px rgba(0,0,0,0.7);
+            box-shadow: 0 0 25px rgba(0, 173, 181, 0.3);
             transition: all 0.3s ease;
             display: none; 
             z-index: 10;
@@ -48,6 +48,7 @@
             font-size: 1.3rem;
             border-bottom: 2px solid #00adb5;
             padding-bottom: 6px;
+            text-transform: uppercase;
         }
 
         .data-group {
@@ -76,6 +77,7 @@
             border-radius: 4px;
             margin-top: 4px;
             line-height: 1.3;
+            border-left: 3px solid #00adb5;
         }
 
         .falla-input {
@@ -108,6 +110,7 @@
             cursor: pointer;
             margin-top: 15px;
             transition: background 0.2s, transform 0.1s;
+            box-shadow: 0 4px 15px rgba(255, 87, 34, 0.4);
         }
 
         .btn-ot:hover {
@@ -119,13 +122,14 @@
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(10, 10, 10, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 10px 20px;
+            background: rgba(11, 12, 16, 0.9);
+            border: 1px solid #00adb5;
+            padding: 12px 24px;
             border-radius: 30px;
             pointer-events: none;
             font-size: 0.85rem;
             text-align: center;
+            box-shadow: 0 0 15px rgba(0, 173, 181, 0.2);
         }
     </style>
     <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
@@ -134,7 +138,7 @@
 <body>
 
     <div id="canvas-container"></div>
-    <div id="instructions">🖱️ Haz clic en un componente para extraerlo lateralmente y ver sus especificaciones técnicas</div>
+    <div id="instructions">🖱️ Selección de Activos: Haz clic sobre cualquier pieza para extraerla e inspeccionarla</div>
 
     <div id="info-panel">
         <h2 id="part-name">Componente</h2>
@@ -162,14 +166,14 @@
         <button class="btn-ot" onclick="crearOrdenTrabajo()">Levantar Orden de Trabajo</button>
     </div>
 
-    <script>
-        // --- 1. ESCENARIO 3D ---
+    <script {twc-raw}>
+        // --- 1. CONFIGURACIÓN DEL ESCENARIO ---
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x111317);
+        scene.background = new THREE.Color(0x0b0c10); // Negro técnico profundo
 
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.set(4, 2, 8);
+        camera.position.set(4, 2, 7.5);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -180,11 +184,21 @@
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
 
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        // --- ILUMINACIÓN FOTOGRÁFICA DE ALTO CONTRASTE ---
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.3); // Luz ambiental base
         scene.add(ambientLight);
-        const mainLight = new THREE.DirectionalLight(0xffffff, 1.2);
-        mainLight.position.set(5, 10, 7);
-        scene.add(mainLight);
+        
+        const sunLight = new THREE.DirectionalLight(0xffffff, 1.4); // Luz principal blanca (Superior derecha frontal)
+        sunLight.position.set(6, 12, 8);
+        scene.add(sunLight);
+
+        const floorLight = new THREE.DirectionalLight(0xffffff, 0.4); // Luz inferior para aclarar la base de la cabina
+        floorLight.position.set(0, -5, 0);
+        scene.add(floorLight);
+
+        const neonRimLight = new THREE.DirectionalLight(0x00adb5, 1.2); // Luz de contorno Cyan trasera (Efecto neón aislante)
+        neonRimLight.position.set(-6, 4, -6);
+        scene.add(neonRimLight);
 
         // --- 2. BASE DE DATOS SEGÚN PLANO TÉCNICO ---
         const baseDatosPiezas = {
@@ -200,10 +214,17 @@
             "Chasis_Acrilico": { nombre: "Chasis Estructural y Acrílicos", id: "DOPP-CHAS-OMEGA", crit: "Media", desc: "Estructuras perimetrales de aluminio aeroespacial con ventanas panorámicas de acrílico de alta resistencia mecánica." }
         };
 
-        // --- 3. MODELADO DE COMPONENTES FIEL AL ESQUEMA ---
+        // --- 3. MODELADO DE COMPONENTES DE ALTA VISIBILIDAD ---
         const cabinaGrupo = new THREE.Group();
         scene.add(cabinaGrupo);
         const estadoOriginales = new Map();
+
+        // Materiales de alta definición y contraste cromático
+        const matAluminioBrillante = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.1, metalness: 0.9 }); // Aluminio pulido reflectivo
+        const matGrisContraste = new THREE.MeshStandardMaterial({ color: 0x4a5568, roughness: 0.3, metalness: 0.6 }); // Componentes mecánicos visibles
+        const matCauchoOscuro = new THREE.MeshStandardMaterial({ color: 0x1a202c, roughness: 0.7, metalness: 0.2 }); // Gomas marcadas
+        const matVidrioCian = new THREE.MeshStandardMaterial({ color: 0x3182ce, transparent: true, opacity: 0.35, roughness: 0.05, metalness: 0.3 }); // Vidrios azul/cyan translúcidos
+        const matSolarElectrico = new THREE.MeshStandardMaterial({ color: 0x1d4ed8, roughness: 0.1, metalness: 0.7 }); // Azul rey eléctrico
 
         function registrarComponente(objeto, nombreClave) {
             objeto.name = nombreClave;
@@ -219,27 +240,28 @@
             });
         }
 
-        const matAluminio = new THREE.MeshStandardMaterial({ color: 0xd1d5db, roughness: 0.2, metalness: 0.8 });
-        const matGrisOscuro = new THREE.MeshStandardMaterial({ color: 0x374151, roughness: 0.5, metalness: 0.5 });
-        const matCaucho = new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.8, metalness: 0.1 });
-
-        // A. Chasis & Acrilicos
+        // A. Chasis Habitáculo (Acrílicos y Esquinas de Aluminio integradas)
         const chasisG = new THREE.Group();
         const geoVidrio = new THREE.BoxGeometry(2.2, 1.8, 1.8);
-        const matVidrio = new THREE.MeshStandardMaterial({ color: 0x223344, transparent: true, opacity: 0.4, roughness: 0.1 });
-        const vidrio = new THREE.Mesh(geoVidrio, matVidrio);
+        const vidrio = new THREE.Mesh(geoVidrio, matVidrioCian);
         chasisG.add(vidrio);
+
+        // Marcos perimetrales super marcados en aluminio blanco reflectivo
+        const geoMarco = new THREE.BoxGeometry(2.26, 0.08, 1.86);
+        const mSup = new THREE.Mesh(geoMarco, matAluminioBrillante); mSup.position.y = 0.9;
+        const mInf = mSup.clone(); mInf.position.y = -0.9;
+        chasisG.add(mSup, mInf);
+
+        // Columnas angulares reflectivas
+        const geoCol = new THREE.BoxGeometry(0.08, 1.8, 0.08);
+        const c1 = new THREE.Mesh(geoCol, matAluminioBrillante); c1.position.set(1.1, 0, 0.9);
+        const c2 = c1.clone(); c2.position.set(-1.1, 0, 0.9);
+        const c3 = c1.clone(); c3.position.set(1.1, 0, -0.9);
+        const c4 = c1.clone(); c4.position.set(-1.1, 0, -0.9);
+        chasisG.add(c1, c2, c3, c4);
         registrarComponente(chasisG, "Chasis_Acrilico");
 
-        // B. Estructuras de Aluminio (Marcos)
-        const marcoG = new THREE.Group();
-        const geoMarco = new THREE.BoxGeometry(2.26, 0.08, 1.86);
-        const mSup = new THREE.Mesh(geoMarco, matAluminio); mSup.position.y = 0.9;
-        const mInf = mSup.clone(); mInf.position.y = -0.9;
-        marcoG.add(mSup, mInf);
-        registrarComponente(marcoG, "Chasis_Acrilico");
-
-        // C. Brazo de Suspensión Curvo
+        // B. Brazo de Suspensión Curvo (Resalta en aluminio puro)
         const brazoG = new THREE.Group();
         const curva = new THREE.CatmullRomCurve3([
             new THREE.Vector3(0, 3.1, 0),
@@ -248,77 +270,76 @@
             new THREE.Vector3(0, 1.0, 0)
         ]);
         const geoBrazo = new THREE.TubeGeometry(curva, 32, 0.12, 16, false);
-        const brazoMesh = new THREE.Mesh(geoBrazo, matAluminio);
+        const brazoMesh = new THREE.Mesh(geoBrazo, matAluminioBrillante);
         brazoG.add(brazoMesh);
         registrarComponente(brazoG, "Brazo_Suspension");
 
-        // D. Amortiguador Superior
+        // C. Amortiguador de Torsión Superior
         const amortG = new THREE.Group();
-        const geoAmort = new THREE.BoxGeometry(0.3, 0.2, 0.4);
-        const amort = new THREE.Mesh(geoAmort, matCaucho);
+        const geoAmort = new THREE.BoxGeometry(0.35, 0.2, 0.45);
+        const amort = new THREE.Mesh(geoAmort, matCauchoOscuro);
         amortG.add(amort);
         amortG.position.set(-0.1, 1.05, 0);
         registrarComponente(amortG, "Amortiguador");
 
-        // E. Pinza de Agarre
+        // D. Pinza de Agarre (Gris de ingeniería con rodillos de acero brillante)
         const pinzaG = new THREE.Group();
         const geoP = new THREE.BoxGeometry(0.4, 0.3, 0.8);
-        const pM = new THREE.Mesh(geoP, matGrisOscuro); pinzaG.add(pM);
+        const pM = new THREE.Mesh(geoP, matGrisContraste); pinzaG.add(pM);
         const geoR = new THREE.CylinderGeometry(0.12, 0.12, 0.1, 16);
-        const r1 = new THREE.Mesh(geoR, matAluminio); r1.rotation.z = Math.PI/2; r1.position.set(0.25, 0, 0.2);
+        const r1 = new THREE.Mesh(geoR, matAluminioBrillante); r1.rotation.z = Math.PI/2; r1.position.set(0.25, 0, 0.2);
         const r2 = r1.clone(); r2.position.z = -0.2; pinzaG.add(r1, r2);
         pinzaG.position.y = 3.2;
         registrarComponente(pinzaG, "Mecanismo_Pinza");
 
-        // F. Panel Solar
+        // E. Panel Solar (Azul eléctrico súper llamativo)
         const solarG = new THREE.Group();
-        const geoSol = new THREE.BoxGeometry(0.6, 0.03, 0.5);
-        const matSol = new THREE.MeshStandardMaterial({ color: 0x1e40af, roughness: 0.1, metalness: 0.6 });
-        const sol = new THREE.Mesh(geoSol, matSol); sol.rotation.x = -0.3; solarG.add(sol);
-        solarG.position.set(0.4, 0.98, 0.4);
+        const geoSol = new THREE.BoxGeometry(0.6, 0.04, 0.5);
+        const sol = new THREE.Mesh(geoSol, matSolarElectrico); sol.rotation.x = -0.3; solarG.add(sol);
+        solarG.position.set(0.4, 1.02, 0.4);
         registrarComponente(solarG, "Panel_Solar");
 
-        // G. Batería
+        // F. Batería
         const batG = new THREE.Group();
-        const geoBat = new THREE.BoxGeometry(0.3, 0.15, 0.3);
-        const bat = new THREE.Mesh(geoBat, matGrisOscuro); batG.add(bat);
-        batG.position.set(0.4, 1.0, -0.4);
+        const geoBat = new THREE.BoxGeometry(0.3, 0.2, 0.3);
+        const bat = new THREE.Mesh(geoBat, matGrisContraste); batG.add(bat);
+        batG.position.set(0.4, 1.02, -0.4);
         registrarComponente(batG, "Bateria");
 
-        // H. Parachoques (Elastómeros laterales)
+        // G. Parachoques Matizados
         const paraG = new THREE.Group();
-        const geoPara = new THREE.SphereGeometry(0.25, 16, 16); geoPara.scale(0.5, 1, 1.5);
-        const pL = new THREE.Mesh(geoPara, matCaucho); pL.position.set(1.1, -0.1, 0);
+        const geoPara = new THREE.SphereGeometry(0.25, 16, 16); geoPara.scale(0.5, 1, 1.4);
+        const pL = new THREE.Mesh(geoPara, matCauchoOscuro); pL.position.set(1.1, -0.1, 0);
         const pR = pL.clone(); pR.position.x = -1.1; paraG.add(pL, pR);
         registrarComponente(paraG, "Parachoques");
 
-        // I. Puerta (Corredera)
+        // H. Puerta de Acceso (Marco remarcado)
         const puertaG = new THREE.Group();
-        const geoPuerta = new THREE.BoxGeometry(0.05, 1.5, 0.8);
-        const pMesh = new THREE.Mesh(geoPuerta, matVidrio);
-        const pMarco = new THREE.Mesh(new THREE.BoxGeometry(0.06, 1.52, 0.82), matAluminio);
-        pMarco.material.wireframe = true;
+        const geoPuerta = new THREE.BoxGeometry(0.03, 1.5, 0.8);
+        const pMesh = new THREE.Mesh(geoPuerta, matVidrioCian);
+        const pMarco = new THREE.Mesh(new THREE.BoxGeometry(0.05, 1.54, 0.84), matAluminioBrillante);
+        pMarco.material.wireframe = true; // Resalta la rejilla de la puerta
         puertaG.add(pMesh, pMarco);
         puertaG.position.set(0, -0.1, 0.91);
         registrarComponente(puertaG, "Puerta");
 
-        // J. Apoyo para Pies (Estribo)
+        // I. Apoyo para Pies (Estribo brillante)
         const pieG = new THREE.Group();
-        const geoPie = new THREE.BoxGeometry(0.2, 0.05, 0.9);
-        const pie = new THREE.Mesh(geoPie, matAluminio); pieG.add(pie);
+        const geoPie = new THREE.BoxGeometry(0.22, 0.05, 0.9);
+        const pie = new THREE.Mesh(geoPie, matAluminioBrillante); pieG.add(pie);
         pieG.position.set(0.6, -0.95, 0.91);
         registrarComponente(pieG, "Apoyo_Pies");
 
-        // K. Persianas de Ventilación
+        // J. Persianas de Ventilación Inferior
         const ventG = new THREE.Group();
-        const geoVent = new THREE.BoxGeometry(1.2, 0.2, 0.02);
-        const vent = new THREE.Mesh(geoVent, matGrisOscuro); vent.material.wireframe = true; ventG.add(vent);
+        const geoVent = new THREE.BoxGeometry(1.2, 0.2, 0.03);
+        const vent = new THREE.Mesh(geoVent, matGrisContraste); vent.material.wireframe = true; ventG.add(vent);
         ventG.position.set(0, -0.6, 0.91);
         registrarComponente(ventG, "Persianas");
 
         cabinaGrupo.position.y = -1.0;
 
-        // --- 4. RAYCASTING & EXTRACCIÓN DINÁMICA ---
+        // --- 4. RAYCASTING Y DETECCIÓN ---
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
         let componenteActivo = null;
@@ -343,15 +364,19 @@
 
                 if (componenteActivo !== raiz) {
                     componenteActivo = raiz;
-                    // Extraer lateralmente la pieza en el eje X
+                    // Extracción lateral dramática en el eje X para revisión limpia
                     objetivosAnimacion = [{ objeto: componenteActivo, posFinal: new THREE.Vector3(2.5, estadoOriginales.get(componenteActivo.name).posicion.y, 0) }];
                     
-                    // Atenuar el resto de los elementos
+                    // Atenuación de las partes no seleccionadas
                     cabinaGrupo.children.forEach((modulo) => {
                         modulo.traverse((child) => {
                             if (child.isMesh) {
                                 child.material.transparent = true;
-                                child.material.opacity = (child.name === componenteActivo.name) ? 1.0 : 0.12;
+                                if (child.name === componenteActivo.name) {
+                                    child.material.opacity = 1.0;
+                                } else {
+                                    child.material.opacity = 0.08; // Mayor atenuación para enfoque total
+                                }
                             }
                         });
                     });
@@ -397,19 +422,20 @@
         function crearOrdenTrabajo() {
             if (componenteActivo) {
                 const info = baseDatosPiezas[componenteActivo.name];
-                const comentario = document.getElementById('falla-descripcion').value.trim() || "Mantenimiento preventivo estándar.";
-                alert(`📋 ORDEN DE TRABAJO PROCESADA\n\nComponente: ${info.nombre}\nCódigo: ${info.id}\nFalla: "${comentario}"\n\nOrden despachada en la bitácora técnica.`);
+                const comentario = document.getElementById('falla-descripcion').value.trim() || "Mantenimiento preventivo.";
+                alert(`📋 ORDEN DE TRABAJO PROCESADA\n\nComponente: ${info.nombre}\nCódigo: ${info.id}\nFalla: "${comentario}"`);
                 restaurarEstado();
             }
         }
 
-        // --- 5. LOOP DE RENDERIZADO ---
+        // --- 5. LOOP DE ANIMACIÓN ---
         function animate() {
             requestAnimationFrame(animate);
             controls.update();
 
             objetivosAnimacion.forEach((t) => { t.objeto.position.lerp(t.posFinal, 0.15); });
 
+            // Rotación suave del conjunto si no se está auditando ninguna pieza
             if (controls.state === -1 && !componenteActivo) {
                 cabinaGrupo.rotation.y += 0.0015;
             } else if (componenteActivo) {
