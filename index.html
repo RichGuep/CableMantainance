@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">fondo
-    <title>GMAO Doppelmayr - Alta Visibilidad</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GMAO Doppelmayr - Contraste Avanzado</title>
     <style>
         * {
             box-sizing: border-box;
@@ -14,7 +14,7 @@
 
         body {
             overflow: hidden;
-            background-color: #f5f6fc; /* Fondo negro profundo texturizado */
+            background-color: #0d0f12; /* Fondo oscuro corregido para contraste */
             color: #fff;
         }
 
@@ -24,31 +24,32 @@
             display: block;
         }
 
-        /* Panel Lateral de Mantenimiento */
+        /* Panel Lateral */
         #info-panel {
             position: absolute;
             top: 20px;
             right: 20px;
             width: 380px;
-            background: rgba(15, 22, 36, 0.92);
+            background: rgba(20, 26, 38, 0.95);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border: 1px solid #00adb5; /* Borde Cyan Tecnológico */
+            border: 2px solid #00fff2; /* Neon de alta visibilidad */
             border-radius: 12px;
             padding: 24px;
-            box-shadow: 0 0 25px rgba(0, 173, 181, 0.3);
+            box-shadow: 0 0 30px rgba(0, 255, 242, 0.25);
             transition: all 0.3s ease;
             display: none; 
             z-index: 10;
         }
 
         h2 {
-            color: #00adb5;
+            color: #00fff2;
             margin-bottom: 14px;
             font-size: 1.3rem;
-            border-bottom: 2px solid #00adb5;
+            border-bottom: 2px solid #00fff2;
             padding-bottom: 6px;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .data-group {
@@ -71,18 +72,18 @@
 
         .data-desc {
             font-size: 0.85rem;
-            color: #cbd5e0;
-            background: rgba(255,255,255,0.05);
-            padding: 8px;
-            border-radius: 4px;
+            color: #e2e8f0;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 10px;
+            border-radius: 6px;
             margin-top: 4px;
-            line-height: 1.3;
-            border-left: 3px solid #00adb5;
+            line-height: 1.4;
+            border-left: 3px solid #00fff2;
         }
 
         .falla-input {
             width: 100%;
-            background: #1a202c;
+            background: #141722;
             border: 1px solid #4a5568;
             color: white;
             padding: 10px;
@@ -94,7 +95,7 @@
 
         .falla-input:focus {
             outline: none;
-            border-color: #00adb5;
+            border-color: #00fff2;
         }
 
         .btn-ot {
@@ -111,6 +112,7 @@
             margin-top: 15px;
             transition: background 0.2s, transform 0.1s;
             box-shadow: 0 4px 15px rgba(255, 87, 34, 0.4);
+            text-transform: uppercase;
         }
 
         .btn-ot:hover {
@@ -122,14 +124,14 @@
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(11, 12, 16, 0.9);
-            border: 1px solid #00adb5;
+            background: rgba(13, 15, 18, 0.95);
+            border: 1px solid #00fff2;
             padding: 12px 24px;
             border-radius: 30px;
             pointer-events: none;
             font-size: 0.85rem;
             text-align: center;
-            box-shadow: 0 0 15px rgba(0, 173, 181, 0.2);
+            box-shadow: 0 0 15px rgba(0, 255, 242, 0.2);
         }
     </style>
     <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
@@ -138,7 +140,7 @@
 <body>
 
     <div id="canvas-container"></div>
-    <div id="instructions">🖱️ Selección de Activos: Haz clic sobre cualquier pieza para extraerla e inspeccionarla</div>
+    <div id="instructions">🔍 MÓDULO INTERACTIVO: Haz clic en una pieza para extraerla del conjunto</div>
 
     <div id="info-panel">
         <h2 id="part-name">Componente</h2>
@@ -170,10 +172,10 @@
         // --- 1. CONFIGURACIÓN DEL ESCENARIO ---
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x0b0c10); // Negro técnico profundo
+        scene.background = new THREE.Color(0x0c0e12); // Fondo oscuro premium equilibrado
 
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.set(4, 2, 7.5);
+        camera.position.set(4, 2.5, 7.5);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -184,23 +186,28 @@
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
 
-        // --- ILUMINACIÓN FOTOGRÁFICA DE ALTO CONTRASTE ---
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.3); // Luz ambiental base
+        // --- ILUMINACIÓN DE ESTUDIO TÉCNICO (MÁXIMO VOLUMEN) ---
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4); // Mayor claridad general
         scene.add(ambientLight);
         
-        const sunLight = new THREE.DirectionalLight(0xffffff, 1.4); // Luz principal blanca (Superior derecha frontal)
-        sunLight.position.set(6, 12, 8);
+        const sunLight = new THREE.DirectionalLight(0xffffff, 1.5); // Luz de sol focalizada frontal
+        sunLight.position.set(5, 8, 5);
         scene.add(sunLight);
 
-        const floorLight = new THREE.DirectionalLight(0xffffff, 0.4); // Luz inferior para aclarar la base de la cabina
-        floorLight.position.set(0, -5, 0);
-        scene.add(floorLight);
+        const fillLight = new THREE.DirectionalLight(0xffffff, 0.6); // Luz de relleno lateral opuesta
+        fillLight.position.set(-5, 3, 2);
+        scene.add(fillLight);
 
-        const neonRimLight = new THREE.DirectionalLight(0x00adb5, 1.2); // Luz de contorno Cyan trasera (Efecto neón aislante)
-        neonRimLight.position.set(-6, 4, -6);
+        const neonRimLight = new THREE.DirectionalLight(0x00fff2, 1.3); // Luz neón cyan trasera para recortar siluetas
+        neonRimLight.position.set(-4, 5, -5);
         scene.add(neonRimLight);
 
-        // --- 2. BASE DE DATOS SEGÚN PLANO TÉCNICO ---
+        // Luz interna dedicada para hacer brillar los acrílicos desde adentro
+        const internalLight = new THREE.PointLight(0xffffff, 0.8, 4);
+        internalLight.position.set(0, -0.2, 0);
+        scene.add(internalLight);
+
+        // --- 2. BASE DE DATOS DEL ESQUEMA TÉCNICO ---
         const baseDatosPiezas = {
             "Mecanismo_Pinza": { nombre: "Pinza de Acoplamiento y Rodillos", id: "DOPP-PIN-A108", crit: "Crítica", desc: "Mecanismo de agarre desembragable al cable de acero. Distancia reglamentaria de operación: 60 metros entre cabinas." },
             "Brazo_Suspension": { nombre: "Brazo de Suspensión Curvo", id: "DOPP-BRZ-OMEGA", crit: "Alta", desc: "Estructura principal de aluminio forjado de alta resistencia que conecta el chasis habitáculo con la pinza superior." },
@@ -214,17 +221,17 @@
             "Chasis_Acrilico": { nombre: "Chasis Estructural y Acrílicos", id: "DOPP-CHAS-OMEGA", crit: "Media", desc: "Estructuras perimetrales de aluminio aeroespacial con ventanas panorámicas de acrílico de alta resistencia mecánica." }
         };
 
-        // --- 3. MODELADO DE COMPONENTES DE ALTA VISIBILIDAD ---
+        // --- 3. MODELADO SÓLIDO DE ALTA VISIBILIDAD ---
         const cabinaGrupo = new THREE.Group();
         scene.add(cabinaGrupo);
         const estadoOriginales = new Map();
 
-        // Materiales de alta definición y contraste cromático
-        const matAluminioBrillante = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.1, metalness: 0.9 }); // Aluminio pulido reflectivo
-        const matGrisContraste = new THREE.MeshStandardMaterial({ color: 0x4a5568, roughness: 0.3, metalness: 0.6 }); // Componentes mecánicos visibles
-        const matCauchoOscuro = new THREE.MeshStandardMaterial({ color: 0x1a202c, roughness: 0.7, metalness: 0.2 }); // Gomas marcadas
-        const matVidrioCian = new THREE.MeshStandardMaterial({ color: 0x3182ce, transparent: true, opacity: 0.35, roughness: 0.05, metalness: 0.3 }); // Vidrios azul/cyan translúcidos
-        const matSolarElectrico = new THREE.MeshStandardMaterial({ color: 0x1d4ed8, roughness: 0.1, metalness: 0.7 }); // Azul rey eléctrico
+        // Configuración de materiales sólidos refractarios (Cero Wireframe invisibilizador)
+        const matAluminioSolido = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.15, metalness: 0.85 }); 
+        const matGrisMecanico = new THREE.MeshStandardMaterial({ color: 0x555d6b, roughness: 0.3, metalness: 0.5 }); 
+        const matCauchoSolido = new THREE.MeshStandardMaterial({ color: 0x1e222b, roughness: 0.6, metalness: 0.1 }); 
+        const matVidrioContraste = new THREE.MeshStandardMaterial({ color: 0x1a3a54, transparent: true, opacity: 0.45, roughness: 0.05, metalness: 0.4 }); 
+        const matSolarBrillante = new THREE.MeshStandardMaterial({ color: 0x1e40af, roughness: 0.1, metalness: 0.6 }); 
 
         function registrarComponente(objeto, nombreClave) {
             objeto.name = nombreClave;
@@ -240,28 +247,27 @@
             });
         }
 
-        // A. Chasis Habitáculo (Acrílicos y Esquinas de Aluminio integradas)
+        // A. Chasis Habitáculo y Cristales
         const chasisG = new THREE.Group();
         const geoVidrio = new THREE.BoxGeometry(2.2, 1.8, 1.8);
-        const vidrio = new THREE.Mesh(geoVidrio, matVidrioCian);
+        const vidrio = new THREE.Mesh(geoVidrio, matVidrioContraste);
         chasisG.add(vidrio);
 
-        // Marcos perimetrales super marcados en aluminio blanco reflectivo
-        const geoMarco = new THREE.BoxGeometry(2.26, 0.08, 1.86);
-        const mSup = new THREE.Mesh(geoMarco, matAluminioBrillante); mSup.position.y = 0.9;
+        // Marcos perimetrales gruesos y sólidos (Hacen visible la cabina)
+        const geoMarcoHorizontal = new THREE.BoxGeometry(2.26, 0.1, 1.86);
+        const mSup = new THREE.Mesh(geoMarcoHorizontal, matAluminioSolido); mSup.position.y = 0.9;
         const mInf = mSup.clone(); mInf.position.y = -0.9;
         chasisG.add(mSup, mInf);
 
-        // Columnas angulares reflectivas
-        const geoCol = new THREE.BoxGeometry(0.08, 1.8, 0.08);
-        const c1 = new THREE.Mesh(geoCol, matAluminioBrillante); c1.position.set(1.1, 0, 0.9);
+        const geoColumna = new THREE.BoxGeometry(0.1, 1.8, 0.1);
+        const c1 = new THREE.Mesh(geoColumna, matAluminioSolido); c1.position.set(1.1, 0, 0.9);
         const c2 = c1.clone(); c2.position.set(-1.1, 0, 0.9);
         const c3 = c1.clone(); c3.position.set(1.1, 0, -0.9);
         const c4 = c1.clone(); c4.position.set(-1.1, 0, -0.9);
         chasisG.add(c1, c2, c3, c4);
         registrarComponente(chasisG, "Chasis_Acrilico");
 
-        // B. Brazo de Suspensión Curvo (Resalta en aluminio puro)
+        // B. Brazo de Suspensión Curvo (Grueso y sólido)
         const brazoG = new THREE.Group();
         const curva = new THREE.CatmullRomCurve3([
             new THREE.Vector3(0, 3.1, 0),
@@ -269,77 +275,77 @@
             new THREE.Vector3(-0.4, 1.5, 0),
             new THREE.Vector3(0, 1.0, 0)
         ]);
-        const geoBrazo = new THREE.TubeGeometry(curva, 32, 0.12, 16, false);
-        const brazoMesh = new THREE.Mesh(geoBrazo, matAluminioBrillante);
+        const geoBrazo = new THREE.TubeGeometry(curva, 32, 0.14, 16, false); // Incrementado espesor para visibilidad
+        const brazoMesh = new THREE.Mesh(geoBrazo, matAluminioSolido);
         brazoG.add(brazoMesh);
         registrarComponente(brazoG, "Brazo_Suspension");
 
         // C. Amortiguador de Torsión Superior
         const amortG = new THREE.Group();
-        const geoAmort = new THREE.BoxGeometry(0.35, 0.2, 0.45);
-        const amort = new THREE.Mesh(geoAmort, matCauchoOscuro);
+        const geoAmort = new THREE.BoxGeometry(0.4, 0.22, 0.5);
+        const amort = new THREE.Mesh(geoAmort, matCauchoSolido);
         amortG.add(amort);
         amortG.position.set(-0.1, 1.05, 0);
         registrarComponente(amortG, "Amortiguador");
 
-        // D. Pinza de Agarre (Gris de ingeniería con rodillos de acero brillante)
+        // D. Pinza de Agarre Metálica
         const pinzaG = new THREE.Group();
-        const geoP = new THREE.BoxGeometry(0.4, 0.3, 0.8);
-        const pM = new THREE.Mesh(geoP, matGrisContraste); pinzaG.add(pM);
-        const geoR = new THREE.CylinderGeometry(0.12, 0.12, 0.1, 16);
-        const r1 = new THREE.Mesh(geoR, matAluminioBrillante); r1.rotation.z = Math.PI/2; r1.position.set(0.25, 0, 0.2);
-        const r2 = r1.clone(); r2.position.z = -0.2; pinzaG.add(r1, r2);
+        const geoP = new THREE.BoxGeometry(0.45, 0.35, 0.85);
+        const pM = new THREE.Mesh(geoP, matGrisMecanico); pinzaG.add(pM);
+        const geoR = new THREE.CylinderGeometry(0.14, 0.14, 0.12, 16);
+        const r1 = new THREE.Mesh(geoR, matAluminioSolido); r1.rotation.z = Math.PI/2; r1.position.set(0.28, 0, 0.22);
+        const r2 = r1.clone(); r2.position.z = -0.22; pinzaG.add(r1, r2);
         pinzaG.position.y = 3.2;
         registrarComponente(pinzaG, "Mecanismo_Pinza");
 
-        // E. Panel Solar (Azul eléctrico súper llamativo)
+        // E. Panel Solar
         const solarG = new THREE.Group();
-        const geoSol = new THREE.BoxGeometry(0.6, 0.04, 0.5);
-        const sol = new THREE.Mesh(geoSol, matSolarElectrico); sol.rotation.x = -0.3; solarG.add(sol);
-        solarG.position.set(0.4, 1.02, 0.4);
+        const geoSol = new THREE.BoxGeometry(0.65, 0.05, 0.55);
+        const sol = new THREE.Mesh(geoSol, matSolarBrillante); sol.rotation.x = -0.3; solarG.add(sol);
+        solarG.position.set(0.4, 1.03, 0.4);
         registrarComponente(solarG, "Panel_Solar");
 
-        // F. Batería
+        // F. Batería de Respaldo
         const batG = new THREE.Group();
-        const geoBat = new THREE.BoxGeometry(0.3, 0.2, 0.3);
-        const bat = new THREE.Mesh(geoBat, matGrisContraste); batG.add(bat);
-        batG.position.set(0.4, 1.02, -0.4);
+        const geoBat = new THREE.BoxGeometry(0.35, 0.22, 0.35);
+        const bat = new THREE.Mesh(geoBat, matGrisMecanico); batG.add(bat);
+        batG.position.set(0.4, 1.03, -0.4);
         registrarComponente(batG, "Bateria");
 
-        // G. Parachoques Matizados
+        // G. Parachoques Sólidos
         const paraG = new THREE.Group();
-        const geoPara = new THREE.SphereGeometry(0.25, 16, 16); geoPara.scale(0.5, 1, 1.4);
-        const pL = new THREE.Mesh(geoPara, matCauchoOscuro); pL.position.set(1.1, -0.1, 0);
+        const geoPara = new THREE.SphereGeometry(0.26, 16, 16); geoPara.scale(0.5, 1, 1.4);
+        const pL = new THREE.Mesh(geoPara, matCauchoSolido); pL.position.set(1.1, -0.1, 0);
         const pR = pL.clone(); pR.position.x = -1.1; paraG.add(pL, pR);
         registrarComponente(paraG, "Parachoques");
 
-        // H. Puerta de Acceso (Marco remarcado)
+        // H. Puerta de Acceso Sólida con Vidrio Tintado
         const puertaG = new THREE.Group();
-        const geoPuerta = new THREE.BoxGeometry(0.03, 1.5, 0.8);
-        const pMesh = new THREE.Mesh(geoPuerta, matVidrioCian);
-        const pMarco = new THREE.Mesh(new THREE.BoxGeometry(0.05, 1.54, 0.84), matAluminioBrillante);
-        pMarco.material.wireframe = true; // Resalta la rejilla de la puerta
-        puertaG.add(pMesh, pMarco);
+        const geoPuertaVidrio = new THREE.BoxGeometry(0.02, 1.4, 0.7);
+        const pVidrio = new THREE.Mesh(geoPuertaVidrio, matVidrioContraste);
+        const pMarco = new THREE.Mesh(new THREE.BoxGeometry(0.04, 1.46, 0.76), matAluminioSolido);
+        puertaG.add(pMarco, pVidrio);
         puertaG.position.set(0, -0.1, 0.91);
         registrarComponente(puertaG, "Puerta");
 
-        // I. Apoyo para Pies (Estribo brillante)
+        // I. Apoyo para Pies / Estribo
         const pieG = new THREE.Group();
-        const geoPie = new THREE.BoxGeometry(0.22, 0.05, 0.9);
-        const pie = new THREE.Mesh(geoPie, matAluminioBrillante); pieG.add(pie);
+        const geoPie = new THREE.BoxGeometry(0.25, 0.06, 0.9);
+        const pie = new THREE.Mesh(geoPie, matAluminioSolido); pieG.add(pie);
         pieG.position.set(0.6, -0.95, 0.91);
         registrarComponente(pieG, "Apoyo_Pies");
 
-        // J. Persianas de Ventilación Inferior
+        // J. Persianas de Ventilación Inferior (Sólidas para evitar transparencia fantasma)
         const ventG = new THREE.Group();
-        const geoVent = new THREE.BoxGeometry(1.2, 0.2, 0.03);
-        const vent = new THREE.Mesh(geoVent, matGrisContraste); vent.material.wireframe = true; ventG.add(vent);
+        const geoVentBase = new THREE.BoxGeometry(1.2, 0.2, 0.04);
+        const ventBase = new THREE.Mesh(geoVentBase, matGrisMecanico);
+        ventG.add(ventBase);
         ventG.position.set(0, -0.6, 0.91);
         registrarComponente(ventG, "Persianas");
 
         cabinaGrupo.position.y = -1.0;
 
-        // --- 4. RAYCASTING Y DETECCIÓN ---
+        // --- 4. RAYCASTING Y ANIMACIÓN DE EXTRACCIÓN ---
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
         let componenteActivo = null;
@@ -364,7 +370,7 @@
 
                 if (componenteActivo !== raiz) {
                     componenteActivo = raiz;
-                    // Extracción lateral dramática en el eje X para revisión limpia
+                    // Extraer lateralmente de forma limpia hacia la derecha
                     objetivosAnimacion = [{ objeto: componenteActivo, posFinal: new THREE.Vector3(2.5, estadoOriginales.get(componenteActivo.name).posicion.y, 0) }];
                     
                     // Atenuación de las partes no seleccionadas
@@ -375,7 +381,7 @@
                                 if (child.name === componenteActivo.name) {
                                     child.material.opacity = 1.0;
                                 } else {
-                                    child.material.opacity = 0.08; // Mayor atenuación para enfoque total
+                                    child.material.opacity = 0.05; // Opacidad mínima para aislar por completo la pieza seleccionada
                                 }
                             }
                         });
@@ -435,7 +441,7 @@
 
             objetivosAnimacion.forEach((t) => { t.objeto.position.lerp(t.posFinal, 0.15); });
 
-            // Rotación suave del conjunto si no se está auditando ninguna pieza
+            // Rotación suave si el técnico está inspeccionando libremente
             if (controls.state === -1 && !componenteActivo) {
                 cabinaGrupo.rotation.y += 0.0015;
             } else if (componenteActivo) {
