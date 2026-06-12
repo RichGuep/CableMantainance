@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visualizador 3D - Mantenimiento de Cabinas</title>
+    <title>Visualizador Doppelmayr - Gestión de Mantenimiento</title>
     <style>
         * {
             box-sizing: border-box;
@@ -14,41 +14,40 @@
 
         body {
             overflow: hidden;
-            background-color: #141414;
+            background-color: #111;
             color: #fff;
         }
 
-        /* Contenedor del Canvas 3D */
         #canvas-container {
             width: 100vw;
             height: 100vh;
             display: block;
         }
 
-        /* Panel de Información Lateral */
+        /* Panel de Información Lateral Estilo Industrial */
         #info-panel {
             position: absolute;
             top: 20px;
             right: 20px;
-            width: 350px;
-            background: rgba(25, 25, 25, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
+            width: 365px;
+            background: rgba(20, 22, 26, 0.9);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 14px;
             padding: 24px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.7);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
             transition: all 0.3s ease;
-            display: none; /* Se activa con JS al hacer clic */
+            display: none; 
             z-index: 10;
         }
 
         h2 {
             color: #00adb5;
             margin-bottom: 18px;
-            font-size: 1.35rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 8px;
+            font-size: 1.4rem;
+            border-bottom: 2px solid #00adb5;
+            padding-bottom: 6px;
         }
 
         .data-group {
@@ -57,26 +56,26 @@
 
         .data-label {
             font-size: 0.75rem;
-            color: #888;
+            color: #aaa;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
             margin-bottom: 4px;
         }
 
         .data-value {
-            font-size: 1.05rem;
-            font-weight: 500;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #f7fafc;
         }
 
-        /* Formulario rápido de falla para la OT */
         .falla-input {
             width: 100%;
-            background: #252525;
-            border: 1px solid #444;
+            background: #1a202c;
+            border: 1px solid #4a5568;
             color: white;
-            padding: 8px;
-            border-radius: 6px;
-            margin-top: 5px;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 6px;
             resize: none;
             font-size: 0.9rem;
         }
@@ -86,20 +85,21 @@
             border-color: #00adb5;
         }
 
-        /* Botón de Orden de Trabajo */
         .btn-ot {
             display: block;
             width: 100%;
             background: #ff5722;
             color: white;
             border: none;
-            padding: 12px;
-            border-radius: 6px;
+            padding: 14px;
+            border-radius: 8px;
             font-weight: bold;
             font-size: 1rem;
             cursor: pointer;
-            margin-top: 15px;
+            margin-top: 18px;
             transition: background 0.2s, transform 0.1s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .btn-ot:hover {
@@ -107,24 +107,22 @@
         }
 
         .btn-ot:active {
-            transform: scale(0.98);
+            transform: scale(0.97);
         }
 
-        /* Instrucciones de navegación flotantes */
         #instructions {
             position: absolute;
-            bottom: 20px;
+            bottom: 25px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.75);
+            background: rgba(10, 10, 10, 0.85);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 10px 20px;
+            padding: 12px 24px;
             border-radius: 30px;
             pointer-events: none;
-            font-size: 0.85rem;
-            letter-spacing: 0.5px;
+            font-size: 0.9rem;
             text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
         }
     </style>
     <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
@@ -133,43 +131,42 @@
 <body>
 
     <div id="canvas-container"></div>
-
-    <div id="instructions">🖱️ Clic izquierdo + arrastrar para rotar | Clic en una pieza para gestionar</div>
+    <div id="instructions">🖱️ Arrastrar para rotar cabina | Haz clic en una pieza de la cabina Doppelmayr</div>
 
     <div id="info-panel">
         <h2 id="part-name">Componente</h2>
         
         <div class="data-group">
-            <div class="data-label">Código de Inventario</div>
+            <div class="data-label">Código de Elemento (Doppelmayr)</div>
             <div id="part-id" class="data-value">-</div>
         </div>
         
         <div class="data-group">
-            <div class="data-label">Criticidad del Activo</div>
+            <div class="data-label">Criticidad Operativa</div>
             <div id="part-crit" class="data-value">-</div>
         </div>
         
         <div class="data-group">
-            <div class="data-label">Estado Operativo</div>
+            <div class="data-label">Estado Físico</div>
             <div id="part-status" class="data-value">-</div>
         </div>
 
         <div class="data-group">
-            <div class="data-label">Descripción de la Falla / Síntoma</div>
-            <textarea id="falla-descripcion" class="falla-input" rows="3" placeholder="Ej. Ruido excesivo, fisura visible, falta de lubricación..."></textarea>
+            <div class="data-label">Novedad / Hallazgo de Mantenimiento</div>
+            <textarea id="falla-descripcion" class="falla-input" rows="3" placeholder="Describa el daño o condición de la pieza detectada..."></textarea>
         </div>
 
-        <button class="btn-ot" onclick="crearOrdenTrabajo()">Enviar Orden de Trabajo</button>
+        <button class="btn-ot" onclick="crearOrdenTrabajo()">Generar Orden de Trabajo</button>
     </div>
 
     <script>
-        // --- 1. CONFIGURACIÓN DEL ESCENARIO 3D ---
+        // --- 1. CONFIGURACIÓN DEL ESCENARIO ---
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x141414);
+        scene.background = new THREE.Color(0x111317);
 
-        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.set(0, 4, 10);
+        const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(0, 1, 9); // Centrado a nivel del conjunto
 
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -179,60 +176,116 @@
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
-        controls.maxPolarAngle = Math.PI / 2 + 0.1;
+        controls.target.set(0, 0, 0);
 
-        // Iluminación corregida (DirectionalLight)
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        // Iluminación con alto contraste y reflejos metálicos
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
         scene.add(ambientLight);
         
-        const dirLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
-        dirLight1.position.set(5, 10, 7);
-        scene.add(dirLight1);
+        const sunLight = new THREE.DirectionalLight(0xffffff, 1.0);
+        sunLight.position.set(5, 12, 8);
+        scene.add(sunLight);
 
-        const dirLight2 = new THREE.DirectionalLight(0x00adb5, 0.3);
-        dirLight2.position.set(-5, -2, -5);
-        scene.add(dirLight2);
+        const rimLight = new THREE.DirectionalLight(0x00adb5, 0.4); // Luz tecnológica trasera
+        rimLight.position.set(-6, -3, -6);
+        scene.add(rimLight);
 
-        // --- 2. BASE DE DATOS SIMULADA ---
+        // --- 2. BASE DE DATOS TÉCNICA (Doppelmayr Specs) ---
         const baseDatosPiezas = {
-            "Mecanismo_Suspension": { nombre: "Brazo de Suspensión Principal", id: "TELE-SUSP-001", crit: "Alta", estado: "Operativo" },
-            "Mordaza_Agarre": { nombre: "Mordaza de Agarre al Cable", id: "TELE-MORD-042", crit: "Crítica", estado: "Desgaste Moderado" },
-            "Cuerpo_Cabina": { nombre: "Chasis Exterior de Cabina", id: "TELE-CHAS-110", crit: "Media", estado: "Operativo" }
+            "Mecanismo_Pinza": { nombre: "Pinza de Agarre Desembragable", id: "DOPP-PINZA-A108", crit: "Crítica", estado: "Ajuste de muelles requerido" },
+            "Brazo_Suspension": { nombre: "Brazo de Suspensión Curvo (Góndola)", id: "DOPP-ARM-OMEGA", crit: "Alta", estado: "Estructura Conforme" },
+            "Chasis_Cabina": { nombre: "Cuerpo de Cabina OMEGA (Módulo Pasajeros)", id: "DOPP-CAB-O4", crit: "Media", estado: "Vidrios y cierres operativos" }
         };
 
-        // --- 3. MODELADO DE LA CABINA (Figuras básicas acopladas) ---
+        // --- 3. MODELADO DE ALTA FIDELIDAD DE LA GÓNDOLA (Simulando la imagen) ---
         const cabinaGrupo = new THREE.Group();
 
-        // Chasis de la cabina
-        const geoCuerpo = new THREE.BoxGeometry(3, 2.5, 2.5);
-        const matCuerpo = new THREE.MeshStandardMaterial({ color: 0x2b4a5f, roughness: 0.4, metalness: 0.2 });
-        const cuerpoMesh = new THREE.Mesh(geoCuerpo, matCuerpo);
-        cuerpoMesh.name = "Cuerpo_Cabina";
-        cabinaGrupo.add(cuerpoMesh);
+        // [COMPONENTE 1: PINZA DE AGARRE Y RODILLOS SUPERIORES]
+        const pinzaGrupo = new THREE.Group();
+        pinzaGrupo.name = "Mecanismo_Pinza";
 
-        // Brazo de suspensión
-        const geoSusp = new THREE.CylinderGeometry(0.12, 0.12, 2.8, 16);
-        const matSusp = new THREE.MeshStandardMaterial({ color: 0x718096, roughness: 0.3, metalness: 0.6 });
-        const suspMesh = new THREE.Mesh(geoSusp, matSusp);
-        suspMesh.position.set(0, 2.4, 0);
-        suspMesh.name = "Mecanismo_Suspension";
-        cabinaGrupo.add(suspMesh);
+        // Cuerpo central de la pinza
+        const geoPinzaCuerpo = new THREE.BoxGeometry(1.6, 0.3, 0.5);
+        const matMetalOscuro = new THREE.MeshStandardMaterial({ color: 0x22252a, roughness: 0.4, metalness: 0.8 });
+        const pinzaCuerpo = new THREE.Mesh(geoPinzaCuerpo, matMetalOscuro);
+        pinzaCuerpo.name = "Mecanismo_Pinza";
+        pinzaGrupo.add(pinzaCuerpo);
 
-        // Mordaza superior
-        const geoMordaza = new THREE.BoxGeometry(1.4, 0.6, 0.7);
-        const matMordaza = new THREE.MeshStandardMaterial({ color: 0x2d3748, roughness: 0.5, metalness: 0.7 });
-        const mordazaMesh = new THREE.Mesh(geoMordaza, matMordaza);
-        mordazaMesh.position.set(0, 3.9, 0);
-        mordazaMesh.name = "Mordaza_Agarre";
-        cabinaGrupo.add(mordazaMesh);
+        // Rodillos de embrague laterales (Simulación de las ruedas de la foto)
+        const geoRueda = new THREE.CylinderGeometry(0.2, 0.2, 0.15, 16);
+        const matRueda = new THREE.MeshStandardMaterial({ color: 0x5a6270, roughness: 0.2, metalness: 0.9 });
+        for(let i = -0.6; i <= 0.6; i += 0.4) {
+            if(i === 0) continue;
+            const ruedaIzq = new THREE.Mesh(geoRueda, matRueda);
+            ruedaIzq.rotation.x = Math.PI / 2;
+            ruedaIzq.position.set(i, 0.1, 0.25);
+            ruedaIzq.name = "Mecanismo_Pinza";
+            
+            const ruedaDer = ruedaIzq.clone();
+            ruedaDer.position.z = -0.25;
+            ruedaDer.name = "Mecanismo_Pinza";
+            
+            pinzaGrupo.add(ruedaIzq, ruedaDer);
+        }
+        pinzaGrupo.position.y = 3.2;
+        cabinaGrupo.add(pinzaGrupo);
 
+
+        // [COMPONENTE 2: BRAZO DE SUSPENSIÓN CURVO]
+        // Creamos una curva real para emular el brazo estilizado de la foto de Doppelmayr
+        const curvaBrazo = new THREE.CatmullRomCurve3([
+            new THREE.Vector3(0, 3.1, 0),
+            new THREE.Vector3(-0.3, 2.5, 0),
+            new THREE.Vector3(-0.4, 1.6, 0),
+            new THREE.Vector3(0, 1.1, 0)
+        ]);
+        const geoBrazo = new THREE.TubeGeometry(curvaBrazo, 32, 0.12, 16, false);
+        const matBrazo = new THREE.MeshStandardMaterial({ color: 0x718096, roughness: 0.3, metalness: 0.7 });
+        const brazoMesh = new THREE.Mesh(geoBrazo, matBrazo);
+        brazoMesh.name = "Brazo_Suspension";
+        cabinaGrupo.add(brazoMesh);
+
+
+        // [COMPONENTE 3: CUERPO DE CABINA OMEGA (PASAJEROS)]
+        const cabinaChasisGrupo = new THREE.Group();
+        cabinaChasisGrupo.name = "Chasis_Cabina";
+
+        // Estructura de cabina aerodinámica y redondeada (Esfera deformada)
+        const geoChasis = new THREE.SphereGeometry(1.6, 32, 16);
+        geoChasis.scale(1.1, 0.9, 1.0); // Ajuste de proporciones OMEGA
+        const matChasis = new THREE.MeshStandardMaterial({ color: 0x1d2126, roughness: 0.3, metalness: 0.4 });
+        const chasisMesh = new THREE.Mesh(geoChasis, matChasis);
+        chasisMesh.name = "Chasis_Cabina";
+        cabinaChasisGrupo.add(chasisMesh);
+
+        // Marcos metálicos estructurales periféricos (Protectores exteriores)
+        const geoMarco = new THREE.TorusGeometry(1.63, 0.05, 8, 32);
+        const matMarco = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.9, roughness: 0.1 });
+        const marcoV = new THREE.Mesh(geoMarco, matMarco);
+        marcoV.name = "Chasis_Cabina";
+        cabinaChasisGrupo.add(marcoV);
+
+        // Simulador de paneles de vidrios oscuros tintados
+        const geoVidrio = new THREE.BoxGeometry(1.8, 1.0, 1.65);
+        const matVidrio = new THREE.MeshStandardMaterial({ color: 0x0f172a, transparent: true, opacity: 0.6, roughness: 0.1 });
+        const vidrioFrontal = new THREE.Mesh(geoVidrio, matVidrio);
+        vidrioFrontal.position.set(0, 0, 0);
+        vidrioFrontal.name = "Chasis_Cabina";
+        cabinaChasisGrupo.add(vidrioFrontal);
+
+        cabinaChasisGrupo.position.y = -0.3; // Ubicación abajo del brazo
+        cabinaGrupo.add(cabinaChasisGrupo);
+
+        // Desplazamiento global del conjunto para perfecta rotación central
+        cabinaGrupo.position.y = -1.0;
         scene.add(cabinaGrupo);
 
-        // --- 4. INTERACTIVIDAD POR CLIC (RAYCASTING) ---
+
+        // --- 4. DETECTOR DE CLICS (RAYCASTING AVANZADO) ---
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
         let piezaSeleccionada = null;
-        let colorOriginal = null;
+        let coloresOriginalesMap = new Map(); // Guarda los estados de color de estructuras jerárquicas
 
         window.addEventListener('click', onMouseClick, false);
 
@@ -243,30 +296,48 @@
             mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
             raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObjects(cabinaGrupo.children);
+            const intersects = raycaster.intersectObjects(cabinaGrupo.children, true); // Búsqueda profunda recursiva
 
             if (intersects.length > 0) {
-                const object = intersects[0].object;
+                // Encontrar el nodo ancestro directo en el primer nivel del grupo que tenga el nombre técnico
+                let object = intersects[0].object;
+                while (object.parent && object.parent !== cabinaGrupo) {
+                    object = object.parent;
+                }
 
                 if (piezaSeleccionada && piezaSeleccionada !== object) {
-                    piezaSeleccionada.material.color.setHex(colorOriginal);
+                    restaurarColoresGrupo(piezaSeleccionada);
                 }
 
                 if (piezaSeleccionada !== object) {
                     piezaSeleccionada = object;
-                    colorOriginal = object.material.color.getHex();
-                    
-                    // Resaltado visual instantáneo en Cyan
-                    object.material.color.setHex(0x00adb5);
+                    guardarYResaltarGrupo(piezaSeleccionada, 0x00adb5); // Tono Cyan de Inspección técnico
                     mostrarPanel(object.name);
                 }
             } else {
-                restaurarSeleccion();
+                restaurarSeleccionCompleta();
             }
         }
 
-        function mostrarPanel(nombreFisico) {
-            const info = baseDatosPiezas[nombreFisico];
+        function guardarYResaltarGrupo(grupo, hexColor) {
+            grupo.traverse((child) => {
+                if (child.isMesh) {
+                    coloresOriginalesMap.set(child.uuid, child.material.color.getHex());
+                    child.material.color.setHex(hexColor);
+                }
+            });
+        }
+
+        function restaurarColoresGrupo(grupo) {
+            grupo.traverse((child) => {
+                if (child.isMesh && coloresOriginalesMap.has(child.uuid)) {
+                    child.material.color.setHex(coloresOriginalesMap.get(child.uuid));
+                }
+            });
+        }
+
+        function mostrarPanel(nombreTecnico) {
+            const info = baseDatosPiezas[nombreTecnico];
             if (info) {
                 document.getElementById('part-name').innerText = info.nombre;
                 document.getElementById('part-id').innerText = info.id;
@@ -283,52 +354,50 @@
             }
         }
 
-        function restaurarSeleccion() {
+        function restaurarSeleccionCompleta() {
             if (piezaSeleccionada) {
-                piezaSeleccionada.material.color.setHex(colorOriginal);
+                restaurarColoresGrupo(piezaSeleccionada);
                 piezaSeleccionada = null;
             }
             document.getElementById('info-panel').style.display = 'none';
         }
 
-        // --- 5. LÓGICA DE ENVÍO DE ÓRDENES DE TRABAJO ---
         function crearOrdenTrabajo() {
             if (piezaSeleccionada) {
                 const info = baseDatosPiezas[piezaSeleccionada.name];
-                const reporteFalla = document.getElementById('falla-descripcion').value.trim() || "No se especificaron detalles.";
-                
-                const ticket_id = Math.floor(Math.random() * 90000) + 10000;
+                const reporteFalla = document.getElementById('falla-descripcion').value.trim() || "Mantenimiento rutinario preventivo.";
+                const ticket_id = Math.floor(Math.random() * 89999) + 10000;
 
-                alert(`🛠️ ORDEN DE TRABAJO GENERADA\n\n` +
-                      `OT Número: #${ticket_id}\n` +
-                      `Componente afectado: ${info.nombre} (${info.id})\n` +
-                      `Reporte Técnico: "${reporteFalla}"\n\n` +
-                      `¡El sistema simulado registró la orden con éxito!`);
+                alert(`🛠️ ORDEN DE TRABAJO GENERADA (SISTEMA DOPPELMAYR)\n\n` +
+                      `Código de OT: #OT-${ticket_id}\n` +
+                      `Activo: ${info.nombre}\n` +
+                      `ID de Fábrica: ${info.id}\n` +
+                      `Reporte de Daño: "${reporteFalla}"\n\n` +
+                      `Orden enrutada al taller central.`);
                 
-                restaurarSeleccion();
+                restaurarSeleccionCompleta();
             }
         }
 
-        // --- 6. ANIMACIÓN CONTINUA Y AJUSTE DE RESPONSIVIDAD ---
+        // --- 5. RENDER LOOP ---
         function animate() {
             requestAnimationFrame(animate);
             controls.update();
             
-            // Suave rotación si el usuario no interactúa
+            // Giro automático tenue de exhibición
             if (controls.state === -1) {
-                cabinaGrupo.rotation.y += 0.0015;
+                cabinaGrupo.rotation.y += 0.002;
             }
             
             renderer.render(scene, camera);
         }
         animate();
 
-        window.addEventListener('resize', onWindowResize, false);
-        function onWindowResize() {
+        window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
-        }
+        });
     </script>
 </body>
 </html>
