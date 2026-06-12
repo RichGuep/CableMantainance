@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GMAO 3D - Cabinas Doppelmayr</title>
+    <title>GMAO Doppelmayr - Vista Técnica Detallada</title>
     <style>
         * {
             box-sizing: border-box;
@@ -24,19 +24,19 @@
             display: block;
         }
 
-        /* Panel de Información Lateral */
+        /* Panel de Mantenimiento Avanzado */
         #info-panel {
             position: absolute;
             top: 20px;
             right: 20px;
-            width: 360px;
-            background: rgba(20, 24, 33, 0.9);
+            width: 380px;
+            background: rgba(18, 22, 28, 0.95);
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 12px;
             padding: 24px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.7);
             transition: all 0.3s ease;
             display: none; 
             z-index: 10;
@@ -44,14 +44,14 @@
 
         h2 {
             color: #00adb5;
-            margin-bottom: 18px;
+            margin-bottom: 14px;
             font-size: 1.3rem;
             border-bottom: 2px solid #00adb5;
             padding-bottom: 6px;
         }
 
         .data-group {
-            margin-bottom: 14px;
+            margin-bottom: 12px;
         }
 
         .data-label {
@@ -59,13 +59,23 @@
             color: #a0aec0;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
 
         .data-value {
-            font-size: 1.05rem;
+            font-size: 1rem;
             font-weight: 600;
             color: #edf2f7;
+        }
+
+        .data-desc {
+            font-size: 0.85rem;
+            color: #cbd5e0;
+            background: rgba(255,255,255,0.05);
+            padding: 8px;
+            border-radius: 4px;
+            margin-top: 4px;
+            line-height: 1.3;
         }
 
         .falla-input {
@@ -124,42 +134,42 @@
 <body>
 
     <div id="canvas-container"></div>
-    <div id="instructions">🖱️ Clic en un componente para extraerlo lateralmente y revisarlo</div>
+    <div id="instructions">🖱️ Haz clic en un componente para extraerlo lateralmente y ver sus especificaciones técnicas</div>
 
     <div id="info-panel">
         <h2 id="part-name">Componente</h2>
         
         <div class="data-group">
-            <div class="data-label">Código Doppelmayr</div>
+            <div class="data-label">Código de Elemento</div>
             <div id="part-id" class="data-value">-</div>
         </div>
         
         <div class="data-group">
-            <div class="data-label">Criticidad del Activo</div>
+            <div class="data-label">Especificación / Ficha Técnica</div>
+            <div id="part-desc" class="data-desc">-</div>
+        </div>
+
+        <div class="data-group">
+            <div class="data-label">Criticidad Mantenimiento</div>
             <div id="part-crit" class="data-value">-</div>
         </div>
-        
-        <div class="data-group">
-            <div class="data-label">Estado Físico</div>
-            <div id="part-status" class="data-value">-</div>
-        </div>
 
         <div class="data-group">
-            <div class="data-label">Reporte Técnico de Falla</div>
-            <textarea id="falla-descripcion" class="falla-input" rows="3" placeholder="Describa el hallazgo o anomalía en la pieza..."></textarea>
+            <div class="data-label">Reportar Daño u Observación para la OT</div>
+            <textarea id="falla-descripcion" class="falla-input" rows="3" placeholder="Ej: Fisura en acrílico, juego en pernos de amortiguador..."></textarea>
         </div>
 
-        <button class="btn-ot" onclick="crearOrdenTrabajo()">Enviar Orden de Trabajo</button>
+        <button class="btn-ot" onclick="crearOrdenTrabajo()">Levantar Orden de Trabajo</button>
     </div>
 
     <script>
-        // --- 1. CONFIGURACIÓN DEL ENTORNO ---
+        // --- 1. ESCENARIO 3D ---
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x111317);
 
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.set(4, 2, 8); // Ajuste de ángulo para ver la perspectiva tipo render
+        camera.position.set(4, 2, 8);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -170,112 +180,148 @@
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
 
-        // Luces para resaltar texturas metálicas de la imagen
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
         scene.add(ambientLight);
-        
         const mainLight = new THREE.DirectionalLight(0xffffff, 1.2);
         mainLight.position.set(5, 10, 7);
         scene.add(mainLight);
 
-        // --- 2. BASE DE DATOS TÉCNICA ---
+        // --- 2. BASE DE DATOS SEGÚN PLANO TÉCNICO ---
         const baseDatosPiezas = {
-            "Mecanismo_Pinza": { nombre: "Pinza de Agarre Bornaza A-108", id: "DOPP-PZ-09", crit: "Crítica", estado: "Desgaste de rodillos" },
-            "Brazo_Suspension": { nombre: "Brazo de Suspensión Recto", id: "DOPP-BR-44", crit: "Alta", estado: "Estructura Conforme" },
-            "Panel_Solar": { nombre: "Módulo Fotovoltaico de Techo", id: "DOPP-SOL-12", crit: "Media", estado: "Requiere Limpieza" },
-            "Chasis_Cabina": { nombre: "Habáculo / Chasis OMEGA", id: "DOPP-CAB-88", crit: "Media", estado: "Operativo" }
+            "Mecanismo_Pinza": { nombre: "Pinza de Acoplamiento y Rodillos", id: "DOPP-PIN-A108", crit: "Crítica", desc: "Mecanismo de agarre desembragable al cable de acero. Distancia reglamentaria de operación: 60 metros entre cabinas." },
+            "Brazo_Suspension": { nombre: "Brazo de Suspensión Curvo", id: "DOPP-BRZ-OMEGA", crit: "Alta", desc: "Estructura principal de aluminio forjado de alta resistencia que conecta el chasis habitáculo con la pinza superior." },
+            "Amortiguador": { nombre: "Amortiguador de Torsión", id: "DOPP-AMOR-T", crit: "Alta", desc: "Bloque elástico de amortiguación dispuesto en el nodo de articulación superior para estabilizar las oscilaciones de la cabina." },
+            "Panel_Solar": { nombre: "Panel Solar Fotovoltaico", id: "DOPP-SOLAR-01", crit: "Media", desc: "Toma de energía renovable para la alimentación del sistema interno de iluminación led y altavoces de intercomunicación." },
+            "Bateria": { nombre: "Banco de Baterías de Respaldo", id: "DOPP-BAT-12V", crit: "Alta", desc: "Acumulador de energía encargado de sostener los sistemas eléctricos en ausencia de radiación solar directa." },
+            "Parachoques": { nombre: "Parachoques Laterales Elastómero", id: "DOPP-PAR-SIDE", crit: "Baja", desc: "Topes de protección contra impactos suaves en las zonas de embarque y almacenamiento en estaciones." },
+            "Puerta": { nombre: "Sistema de Puertas Corredizas", id: "DOPP-PORT-DBL", crit: "Alta", desc: "Mecanismo automático de desplazamiento lateral asistido. Apertura coordinada en ambos costados mecánicamente." },
+            "Apoyo_Pies": { nombre: "Apoyo para Pies / Estribo", id: "DOPP-FOOT-STP", crit: "Baja", desc: "Plataforma inferior de aluminio antideslizante para la asistencia de acceso de pasajeros a bordo." },
+            "Persianas": { nombre: "Persianas de Ventilación Inferior", id: "DOPP-VENT-INF", crit: "Baja", desc: "Rejillas de ventilación pasiva estructurales integradas para la circulación continua de aire fresco." },
+            "Chasis_Acrilico": { nombre: "Chasis Estructural y Acrílicos", id: "DOPP-CHAS-OMEGA", crit: "Media", desc: "Estructuras perimetrales de aluminio aeroespacial con ventanas panorámicas de acrílico de alta resistencia mecánica." }
         };
 
-        // --- 3. CONSTRUCCIÓN DETALLADA DEL MODELO ---
+        // --- 3. MODELADO DE COMPONENTES FIEL AL ESQUEMA ---
         const cabinaGrupo = new THREE.Group();
         scene.add(cabinaGrupo);
-
-        // Almacenamiento de posiciones y materiales iniciales para restaurar al deseleccionar
         const estadoOriginales = new Map();
 
         function registrarComponente(objeto, nombreClave) {
             objeto.name = nombreClave;
             cabinaGrupo.add(objeto);
-            
-            // Guardamos su posición original en el espacio
-            estadoOriginales.set(nombreClave, {
-                posicion: objeto.position.clone(),
-                materiales: []
-            });
-
-            // Guardamos sus opacidades y propiedades iniciales
+            estadoOriginales.set(nombreClave, { posicion: objeto.position.clone(), materiales: [] });
             objeto.traverse((child) => {
                 if (child.isMesh) {
                     child.name = nombreClave;
                     estadoOriginales.get(nombreClave).materiales.push({
-                        mesh: child,
-                        color: child.material.color.getHex(),
-                        transparent: child.material.transparent,
-                        opacity: child.material.opacity
+                        mesh: child, color: child.material.color.getHex(), transparent: child.material.transparent, opacity: child.material.opacity
                     });
                 }
             });
         }
 
-        const matMetalAluminio = new THREE.MeshStandardMaterial({ color: 0xcccccc, roughness: 0.2, metalness: 0.8 });
-        const matGrisOscuro = new THREE.MeshStandardMaterial({ color: 0x2d3748, roughness: 0.4, metalness: 0.6 });
+        const matAluminio = new THREE.MeshStandardMaterial({ color: 0xd1d5db, roughness: 0.2, metalness: 0.8 });
+        const matGrisOscuro = new THREE.MeshStandardMaterial({ color: 0x374151, roughness: 0.5, metalness: 0.5 });
+        const matCaucho = new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.8, metalness: 0.1 });
 
-        // A. Chasis de Pasajeros
+        // A. Chasis & Acrilicos
         const chasisG = new THREE.Group();
-        const geoBase = new THREE.BoxGeometry(2.4, 1.8, 2.2);
-        const matVidrio = new THREE.MeshStandardMaterial({ color: 0x1a202c, transparent: true, opacity: 0.5, roughness: 0.1 });
-        const baseMesh = new THREE.Mesh(geoBase, matVidrio);
-        chasisG.add(baseMesh);
+        const geoVidrio = new THREE.BoxGeometry(2.2, 1.8, 1.8);
+        const matVidrio = new THREE.MeshStandardMaterial({ color: 0x223344, transparent: true, opacity: 0.4, roughness: 0.1 });
+        const vidrio = new THREE.Mesh(geoVidrio, matVidrio);
+        chasisG.add(vidrio);
+        registrarComponente(chasisG, "Chasis_Acrilico");
 
-        // Marcos metálicos de las esquinas (Como el render)
-        const geoArista = new THREE.BoxGeometry(2.45, 0.1, 2.25);
-        const marcoSup = new THREE.Mesh(geoArista, matMetalAluminio);
-        marcoSup.position.y = 0.9;
-        const marcoInf = marcoSup.clone();
-        marcoInf.position.y = -0.9;
-        chasisG.add(marcoSup, marcoInf);
-        registrarComponente(chasisG, "Chasis_Cabina");
+        // B. Estructuras de Aluminio (Marcos)
+        const marcoG = new THREE.Group();
+        const geoMarco = new THREE.BoxGeometry(2.26, 0.08, 1.86);
+        const mSup = new THREE.Mesh(geoMarco, matAluminio); mSup.position.y = 0.9;
+        const mInf = mSup.clone(); mInf.position.y = -0.9;
+        marcoG.add(mSup, mInf);
+        registrarComponente(marcoG, "Chasis_Acrilico");
 
-        // B. Brazo de Suspensión Recto (Fiel a la nueva imagen)
+        // C. Brazo de Suspensión Curvo
         const brazoG = new THREE.Group();
-        const geoBrazoVertical = new THREE.BoxGeometry(0.15, 2.2, 0.3);
-        const brazoV = new THREE.Mesh(geoBrazoVertical, matMetalAluminio);
-        brazoV.position.set(0, 2.0, 0);
-        brazoG.add(brazoV);
+        const curva = new THREE.CatmullRomCurve3([
+            new THREE.Vector3(0, 3.1, 0),
+            new THREE.Vector3(-0.4, 2.3, 0),
+            new THREE.Vector3(-0.4, 1.5, 0),
+            new THREE.Vector3(0, 1.0, 0)
+        ]);
+        const geoBrazo = new THREE.TubeGeometry(curva, 32, 0.12, 16, false);
+        const brazoMesh = new THREE.Mesh(geoBrazo, matAluminio);
+        brazoG.add(brazoMesh);
         registrarComponente(brazoG, "Brazo_Suspension");
 
-        // C. Pinza Superior con Sistemas Hidráulicos
-        const pinzaG = new THREE.Group();
-        const geoPinzaBox = new THREE.BoxGeometry(0.5, 0.4, 0.8);
-        const pinzaBox = new THREE.Mesh(geoPinzaBox, matGrisOscuro);
-        pinzaG.add(pinzaBox);
+        // D. Amortiguador Superior
+        const amortG = new THREE.Group();
+        const geoAmort = new THREE.BoxGeometry(0.3, 0.2, 0.4);
+        const amort = new THREE.Mesh(geoAmort, matCaucho);
+        amortG.add(amort);
+        amortG.position.set(-0.1, 1.05, 0);
+        registrarComponente(amortG, "Amortiguador");
 
-        const geoRueda = new THREE.CylinderGeometry(0.12, 0.12, 0.1, 16);
-        const rueda = new THREE.Mesh(geoRueda, matMetalAluminio);
-        rueda.rotation.z = Math.PI / 2;
-        rueda.position.set(0.3, 0.1, 0.2);
-        pinzaG.add(rueda);
-        
+        // E. Pinza de Agarre
+        const pinzaG = new THREE.Group();
+        const geoP = new THREE.BoxGeometry(0.4, 0.3, 0.8);
+        const pM = new THREE.Mesh(geoP, matGrisOscuro); pinzaG.add(pM);
+        const geoR = new THREE.CylinderGeometry(0.12, 0.12, 0.1, 16);
+        const r1 = new THREE.Mesh(geoR, matAluminio); r1.rotation.z = Math.PI/2; r1.position.set(0.25, 0, 0.2);
+        const r2 = r1.clone(); r2.position.z = -0.2; pinzaG.add(r1, r2);
         pinzaG.position.y = 3.2;
         registrarComponente(pinzaG, "Mecanismo_Pinza");
 
-        // D. Panel Solar del Techo (Novedad de la foto)
+        // F. Panel Solar
         const solarG = new THREE.Group();
-        const geoPlaca = new THREE.BoxGeometry(0.8, 0.05, 0.8);
-        const matSolar = new THREE.MeshStandardMaterial({ color: 0x1e3a8a, roughness: 0.1, metalness: 0.5 });
-        const placa = new THREE.Mesh(geoPlaca, matSolar);
-        placa.rotation.x = -0.2; // Inclinado hacia el sol
-        solarG.add(placa);
-        solarG.position.set(0, 1.0, 0.4);
+        const geoSol = new THREE.BoxGeometry(0.6, 0.03, 0.5);
+        const matSol = new THREE.MeshStandardMaterial({ color: 0x1e40af, roughness: 0.1, metalness: 0.6 });
+        const sol = new THREE.Mesh(geoSol, matSol); sol.rotation.x = -0.3; solarG.add(sol);
+        solarG.position.set(0.4, 0.98, 0.4);
         registrarComponente(solarG, "Panel_Solar");
 
+        // G. Batería
+        const batG = new THREE.Group();
+        const geoBat = new THREE.BoxGeometry(0.3, 0.15, 0.3);
+        const bat = new THREE.Mesh(geoBat, matGrisOscuro); batG.add(bat);
+        batG.position.set(0.4, 1.0, -0.4);
+        registrarComponente(batG, "Bateria");
 
-        // --- 4. LÓGICA DE INTERACCIÓN Y EXTRACCIÓN (INDIVIDUALIZACIÓN) ---
+        // H. Parachoques (Elastómeros laterales)
+        const paraG = new THREE.Group();
+        const geoPara = new THREE.SphereGeometry(0.25, 16, 16); geoPara.scale(0.5, 1, 1.5);
+        const pL = new THREE.Mesh(geoPara, matCaucho); pL.position.set(1.1, -0.1, 0);
+        const pR = pL.clone(); pR.position.x = -1.1; paraG.add(pL, pR);
+        registrarComponente(paraG, "Parachoques");
+
+        // I. Puerta (Corredera)
+        const puertaG = new THREE.Group();
+        const geoPuerta = new THREE.BoxGeometry(0.05, 1.5, 0.8);
+        const pMesh = new THREE.Mesh(geoPuerta, matVidrio);
+        const pMarco = new THREE.Mesh(new THREE.BoxGeometry(0.06, 1.52, 0.82), matAluminio);
+        pMarco.material.wireframe = true;
+        puertaG.add(pMesh, pMarco);
+        puertaG.position.set(0, -0.1, 0.91);
+        registrarComponente(puertaG, "Puerta");
+
+        // J. Apoyo para Pies (Estribo)
+        const pieG = new THREE.Group();
+        const geoPie = new THREE.BoxGeometry(0.2, 0.05, 0.9);
+        const pie = new THREE.Mesh(geoPie, matAluminio); pieG.add(pie);
+        pieG.position.set(0.6, -0.95, 0.91);
+        registrarComponente(pieG, "Apoyo_Pies");
+
+        // K. Persianas de Ventilación
+        const ventG = new THREE.Group();
+        const geoVent = new THREE.BoxGeometry(1.2, 0.2, 0.02);
+        const vent = new THREE.Mesh(geoVent, matGrisOscuro); vent.material.wireframe = true; ventG.add(vent);
+        ventG.position.set(0, -0.6, 0.91);
+        registrarComponente(ventG, "Persianas");
+
+        cabinaGrupo.position.y = -1.0;
+
+        // --- 4. RAYCASTING & EXTRACCIÓN DINÁMICA ---
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
         let componenteActivo = null;
-
-        // Variables para controlar las transiciones fluidas por código
         let objetivosAnimacion = [];
 
         window.addEventListener('click', onMouseClick, false);
@@ -290,71 +336,42 @@
             const intersects = raycaster.intersectObjects(cabinaGrupo.children, true);
 
             if (intersects.length > 0) {
-                let objetoRaiz = intersects[0].object;
-                while (objetoRaiz.parent && objetoRaiz.parent !== cabinaGrupo) {
-                    objetoRaiz = objetoRaiz.parent;
-                }
+                let raiz = intersects[0].object;
+                while (raiz.parent && raiz.parent !== cabinaGrupo) raiz = raiz.parent;
 
-                if (componenteActivo && componenteActivo !== objetoRaiz) {
-                    restaurarTodoALaNormalidad();
-                }
+                if (componenteActivo && componenteActivo !== raiz) restaurarEstado();
 
-                if (componenteActivo !== objetoRaiz) {
-                    componenteActivo = objetoRaiz;
-                    extraerComponenteLateral(componenteActivo);
+                if (componenteActivo !== raiz) {
+                    componenteActivo = raiz;
+                    // Extraer lateralmente la pieza en el eje X
+                    objetivosAnimacion = [{ objeto: componenteActivo, posFinal: new THREE.Vector3(2.5, estadoOriginales.get(componenteActivo.name).posicion.y, 0) }];
+                    
+                    // Atenuar el resto de los elementos
+                    cabinaGrupo.children.forEach((modulo) => {
+                        modulo.traverse((child) => {
+                            if (child.isMesh) {
+                                child.material.transparent = true;
+                                child.material.opacity = (child.name === componenteActivo.name) ? 1.0 : 0.12;
+                            }
+                        });
+                    });
                     mostrarPanel(componenteActivo.name);
                 }
             } else {
-                restaurarTodoALaNormalidad();
+                restaurarEstado();
             }
         }
 
-        function extraerComponenteLateral(componente) {
+        function restaurarEstado() {
             objetivosAnimacion = [];
-            
-            // 1. Animamos el componente seleccionado moviéndose a la derecha (Eje X)
-            objetivosAnimacion.push({
-                objeto: componente,
-                posFinal: new THREE.Vector3(2.5, estadoOriginales.get(componente.name).posicion.y, 0)
-            });
-
-            // 2. Opacamos todo lo demás para dar enfoque total a la pieza extraída
-            cabinaGrupo.children.forEach((modulo) => {
-                modulo.traverse((child) => {
-                    if (child.isMesh) {
-                        child.material.transparent = true;
-                        if (child.name !== componente.name) {
-                            child.material.opacity = 0.15; // Atenuado masivo
-                        } else {
-                            child.material.opacity = 1.0; // Resaltado completo
-                        }
-                    }
-                });
-            });
-        }
-
-        function restaurarTodoALaNormalidad() {
-            objetivosAnimacion = [];
-
-            // Regresar todas las piezas a su posición matemática original
             cabinaGrupo.children.forEach((modulo) => {
                 const orig = estadoOriginales.get(modulo.name);
-                if(orig) {
-                    objetivosAnimacion.push({
-                        objeto: modulo,
-                        posFinal: orig.posicion.clone()
-                    });
-                }
+                if(orig) objetivosAnimacion.push({ objeto: modulo, posFinal: orig.posicion.clone() });
             });
 
-            // Restaurar los materiales y transparencias de fábrica
             estadoOriginales.forEach((data) => {
-                data.materiales.forEach((matInfo) => {
-                    matInfo.mesh.material.transparent = matInfo.transparent;
-                    matInfo.mesh.material.opacity = matInfo.opacity;
-                });
+                data.materiales.forEach((m) => { m.mesh.material.transparent = m.transparent; m.mesh.material.opacity = m.opacity; });
             });
-
             componenteActivo = null;
             document.getElementById('info-panel').style.display = 'none';
         }
@@ -364,14 +381,14 @@
             if (info) {
                 document.getElementById('part-name').innerText = info.nombre;
                 document.getElementById('part-id').innerText = info.id;
+                document.getElementById('part-desc').innerText = info.desc;
                 document.getElementById('part-crit').innerText = info.crit;
-                document.getElementById('part-status').innerText = info.estado;
                 document.getElementById('falla-descripcion').value = '';
-                
-                const critEl = document.getElementById('part-crit');
-                if (info.crit === "Crítica") critEl.style.color = "#fc8181";
-                else if (info.crit === "Alta") critEl.style.color = "#f6ad55";
-                else critEl.style.color = "#68d391";
+
+                const cEl = document.getElementById('part-crit');
+                if (info.crit === "Crítica") cEl.style.color = "#fc8181";
+                else if (info.crit === "Alta") cEl.style.color = "#f6ad55";
+                else cEl.style.color = "#68d391";
 
                 document.getElementById('info-panel').style.display = 'block';
             }
@@ -380,32 +397,23 @@
         function crearOrdenTrabajo() {
             if (componenteActivo) {
                 const info = baseDatosPiezas[componenteActivo.name];
-                const desc = document.getElementById('falla-descripcion').value.trim() || "Inspección correctiva inmediata.";
-                
-                alert(`⚙️ SISTEMA CMMS INTEGRADO\n\n` +
-                      `Orden de Trabajo despachada para: ${info.nombre}\n` +
-                      `Código de Inventario: ${info.id}\n` +
-                      `Reporte de Daño: "${desc}"`);
-                
-                restaurarTodoALaNormalidad();
+                const comentario = document.getElementById('falla-descripcion').value.trim() || "Mantenimiento preventivo estándar.";
+                alert(`📋 ORDEN DE TRABAJO PROCESADA\n\nComponente: ${info.nombre}\nCódigo: ${info.id}\nFalla: "${comentario}"\n\nOrden despachada en la bitácora técnica.`);
+                restaurarEstado();
             }
         }
 
-        // --- 5. BUCLE DE ANIMACIONES (Interpolación de movimiento) ---
+        // --- 5. LOOP DE RENDERIZADO ---
         function animate() {
             requestAnimationFrame(animate);
             controls.update();
 
-            // Desplazamiento suave (Lerp) para simular el efecto de expulsión o retorno
-            objetivosAnimacion.forEach((tarea) => {
-                tarea.objeto.position.lerp(tarea.posFinal, 0.12);
-            });
-            
-            // Rotación pasiva sutil global si nadie está tocando la pantalla ni inspeccionando
+            objetivosAnimacion.forEach((t) => { t.objeto.position.lerp(t.posFinal, 0.15); });
+
             if (controls.state === -1 && !componenteActivo) {
-                cabinaGrupo.rotation.y += 0.001;
+                cabinaGrupo.rotation.y += 0.0015;
             } else if (componenteActivo) {
-                cabinaGrupo.rotation.y = 0; // Detener rotación durante auditoría técnica
+                cabinaGrupo.rotation.y = 0; 
             }
 
             renderer.render(scene, camera);
