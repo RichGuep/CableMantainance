@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizador 3D - Mantenimiento de Cabinas</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            overflow: hidden;
+            background-color: #141414;
+            color: #fff;
+        }
+
+        /* Contenedor del Canvas 3D */
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            display: block;
+        }
+
+        /* Panel de Información Lateral */
+        #info-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 350px;
+            background: rgba(25, 25, 25, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.7);
+            transition: all 0.3s ease;
+            display: none; /* Se activa con JS al hacer clic */
+            z-index: 10;
+        }
+
+        h2 {
+            color: #00adb5;
+            margin-bottom: 18px;
+            font-size: 1.35rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 8px;
+        }
+
+        .data-group {
+            margin-bottom: 16px;
+        }
+
+        .data-label {
+            font-size: 0.75rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .data-value {
+            font-size: 1.05rem;
+            font-weight: 500;
+        }
+
+        /* Formulario rápido de falla para la OT */
+        .falla-input {
+            width: 100%;
+            background: #252525;
+            border: 1px solid #444;
+            color: white;
+            padding: 8px;
+            border-radius: 6px;
+            margin-top: 5px;
+            resize: none;
+            font-size: 0.9rem;
+        }
+
+        .falla-input:focus {
+            outline: none;
+            border-color: #00adb5;
+        }
+
+        /* Botón de Orden de Trabajo */
+        .btn-ot {
+            display: block;
+            width: 100%;
+            background: #ff5722;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .btn-ot:hover {
+            background: #e64a19;
+        }
+
+        .btn-ot:active {
+            transform: scale(0.98);
+        }
+
+        /* Instrucciones de navegación flotantes */
+        #instructions {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 30px;
+            pointer-events: none;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+    </style>
+    <!-- Dependencias de Three.js para renderizado y control de cámara orbital -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+
+    <div id="canvas-container"></div>
+
+    <div id="instructions">🖱️ Clic izquierdo + arrastrar para rotar | Clic en una pieza para gestionar</div>
+
+    <!-- Panel de Mantenimiento / Gestión de OT -->
+    <div id="info-panel">
+        <h2 id="part-name">Componente</h2>
+        
+        <div class="data-group">
+            <div class="data-label">Código de Inventario</div>
+            <div id="part-id" class="data-value">-</div>
+        </div>
+        
+        <div class="data-group">
+            <div class="data-label">Criticidad del Activo</div>
+            <div id="part-crit" class="data-value">-</div>
+        </div>
+        
+        <div class="data-group">
+            <div class="data-label">Estado Operativo</div>
+            <div id="part-status" class="data-value">-</div>
+        </div>
+
+        <div class="data-group">
+            <div class="data-label">Descripción de la Falla / Síntoma</div>
+            <textarea id="falla-descripcion" class="falla-input" rows="3" placeholder="Ej. Ruido excesivo, fisura visible, falta de lubricación..."></textarea>
+        </div>
+
+        <button class="btn-ot" onclick="crearOrdenTrabajo()">Enviar Orden de Trabajo</button>
+    </div>
+
+    <script>
+        // --- 1. CONFIGURACIÓN DEL ESCENARIO 3D ---
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x141414);
+
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(0, 4, 10);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(renderer.domElement);
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.maxPolarAngle = Math.PI / 2 + 0.1; // Evita que la cámara baje del suelo
+
+        // Iluminación de ambiente y direccional para dar volumen
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+        
+        const dirLight1 = new THREE.DirectionLight(0xffffff, 0.8);
+        dirLight1.position.set(5, 10, 7);
+        scene.add(dirLight1);
+
+        const dirLight2 = new THREE.DirectionLight(0x00adb5, 0.3); // Luz de acento azulada
+        dirLight2.position.set(-5, -2, -5);
+        scene.add(dirLight2);
+
+        // --- 2. BASE DE DATOS SIMULADA (Árbol de Activos) ---
+        const baseDatosPiezas = {
+            "Mecanismo_Suspension": { nombre: "Brazo de Suspensión Principal", id: "TELE-SUSP-001", crit: "Alta", estado: "Operativo" },
+            "Mordaza_Agarre": { nombre: "Mordaza de Agarre al Cable", id: "TELE-MORD-042", crit: "Crítica", estado: "Desgaste Moderado" },
+            "Cuerpo_Cabina": { nombre: "Chasis Exterior de Cabina", id: "TELE-CHAS-110", crit: "Media", estado: "Operativo" }
+        };
+
+        // --- 3. MODELADO DE LA CABINA (Estructura geométrica modular) ---
+        const cabinaGrupo = new THREE.Group();
+
+        // Parte 1: Chasis / Cabina de pasajeros
+        const geoCuerpo = new THREE.BoxGeometry(3, 2.5, 2.5);
+        const matCuerpo = new THREE.MeshStandardMaterial({ color: 0x2b4a5f, roughness: 0.4, metalness: 0.2 });
+        const cuerpoMesh = new THREE.Mesh(geoCuerpo, matCuerpo);
+        cuerpoMesh.name = "Cuerpo_Cabina";
+        cabinaGrupo.add(cuerpoMesh);
+
+        // Parte 2: El brazo de suspensión telescópico
+        const geoSusp = new THREE.CylinderGeometry(0.12, 0.12, 2.8, 16);
+        const matSusp = new THREE.MeshStandardMaterial({ color: 0x718096, roughness: 0.3, metalness: 0.6 });
+        const suspMesh = new THREE.Mesh(geoSusp, matSusp);
+        suspMesh.position.set(0, 2.4, 0);
+        suspMesh.name = "Mecanismo_Suspension";
+        cabinaGrupo.add(suspMesh);
+
+        // Parte 3: El sistema de mordaza / pinza superior
+        const geoMordaza = new THREE.BoxGeometry(1.4, 0.6, 0.7);
+        const matMordaza = new THREE.MeshStandardMaterial({ color: 0x2d3748, roughness: 0.5, metalness: 0.7 });
+        const mordazaMesh = new THREE.Mesh(geoMordaza, matMordaza);
+        mordazaMesh.position.set(0, 3.9, 0);
+        mordazaMesh.name = "Mordaza_Agarre";
+        cabinaGrupo.add(mordazaMesh);
+
+        scene.add(cabinaGrupo);
+
+        // --- 4. INTERACTIVIDAD POR CLIC (RAYCASTING) ---
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        let piezaSeleccionada = null;
+        let colorOriginal = null;
+
+        window.addEventListener('click', onMouseClick, false);
+
+        function onMouseClick(event) {
+            // No activar el clic si el usuario interactúa con el panel de información
+            if (event.target.closest('#info-panel')) return;
+
+            // Calcular la posición del mouse en coordenadas normalizadas
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(cabinaGrupo.children);
+
+            if (intersects.length > 0) {
+                const object = intersects[0].object;
+
+                // Si ya había una pieza seleccionada diferente, le devolvemos su color original
+                if (piezaSeleccionada && piezaSeleccionada !== object) {
+                    piezaSeleccionada.material.color.setHex(colorOriginal);
+                }
+
+                // Configurar la nueva selección
+                if (piezaSeleccionada !== object) {
+                    piezaSeleccionada = object;
+                    colorOriginal = object.material.color.getHex();
+                    
+                    // Resaltado visual de la pieza (Cyan dinámico)
+                    object.material.color.setHex(0x00adb5);
+                    
+                    // Inyectar datos en el panel flotante
+                    mostrarPanel(object.name);
+                }
+            } else {
+                // Clic en el espacio vacío deselecciona la pieza actual
+                restaurarSeleccion();
+            }
+        }
+
+        function mostrarPanel(nombreFisico) {
+            const info = baseDatosPiezas[nombreFisico];
+            if (info) {
+                document.getElementById('part-name').innerText = info.nombre;
+                document.getElementById('part-id').innerText = info.id;
+                document.getElementById('part-crit').innerText = info.crit;
+                document.getElementById('part-status').innerText = info.estado;
+                document.getElementById('falla-descripcion').value = ''; // Limpiar reporte anterior
+                
+                // Formato de color para la criticidad
+                const critEl = document.getElementById('part-crit');
+                if (info.crit === "Crítica") critEl.style.color = "#fc8181";
+                else if (info.crit === "Alta") critEl.style.color = "#f6ad55";
+                else critEl.style.color = "#68d391";
+
+                document.getElementById('info-panel').style.display = 'block';
+            }
+        }
+
+        function restaurarSeleccion() {
+            if (piezaSeleccionada) {
+                piezaSeleccionada.material.color.setHex(colorOriginal);
+                piezaSeleccionada = null;
+            }
+            document.getElementById('info-panel').style.display = 'none';
+        }
+
+        // --- 5. LÓGICA DE ENVÍO DE ÓRDENES DE TRABAJO ---
+        function crearOrdenTrabajo() {
+            if (piezaSeleccionada) {
+                const info = baseDatosPiezas[piezaSeleccionada.name];
+                const reporteFalla = document.getElementById('falla-descripcion').value.trim() || "No se especificaron detalles.";
+                
+                // Estructura de datos que se enviaría a tu backend/CMMS real
+                const payloadOT = {
+                    ticket_id: Math.floor(Math.random() * 90000) + 10000,
+                    componente_id: info.id,
+                    componente_nombre: info.nombre,
+                    comentario: reporteFalla,
+                    fecha_emision: new Date().toLocaleDateString()
+                };
+
+                alert(`🛠️ ORDEN DE TRABAJO GENERADA EMERGENCIAL\n\n` +
+                      `OT Número: #${payloadOT.ticket_id}\n` +
+                      `Componente afectado: ${payloadOT.componente_nombre} (${payloadOT.componente_id})\n` +
+                      `Reporte Técnico: "${payloadOT.comentario}"\n\n` +
+                      `Los datos han sido validados. El flujo está listo para conectarse con una API de mantenimiento.`);
+                
+                restaurarSeleccion();
+            }
+        }
+
+        // --- 6. ANIMACIÓN CONTINUA Y AJUSTE DE PANTALLA ---
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            
+            // Rotación pasiva lenta cuando el usuario no está arrastrando la cabina
+            if (controls.state === -1) {
+                cabinaGrupo.rotation.y += 0.0015;
+            }
+            
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', onWindowResize, false);
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+    </script>
+</body>
+</html>
