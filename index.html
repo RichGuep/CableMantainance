@@ -127,9 +127,8 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
     </style>
-    <!-- Dependencias de Three.js para renderizado y control de cámara orbital -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
 
@@ -137,7 +136,6 @@
 
     <div id="instructions">🖱️ Clic izquierdo + arrastrar para rotar | Clic en una pieza para gestionar</div>
 
-    <!-- Panel de Mantenimiento / Gestión de OT -->
     <div id="info-panel">
         <h2 id="part-name">Componente</h2>
         
@@ -181,38 +179,38 @@
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
-        controls.maxPolarAngle = Math.PI / 2 + 0.1; // Evita que la cámara baje del suelo
+        controls.maxPolarAngle = Math.PI / 2 + 0.1;
 
-        // Iluminación de ambiente y direccional para dar volumen
+        // Iluminación corregida (DirectionalLight)
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
         scene.add(ambientLight);
         
-        const dirLight1 = new THREE.DirectionLight(0xffffff, 0.8);
+        const dirLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
         dirLight1.position.set(5, 10, 7);
         scene.add(dirLight1);
 
-        const dirLight2 = new THREE.DirectionLight(0x00adb5, 0.3); // Luz de acento azulada
+        const dirLight2 = new THREE.DirectionalLight(0x00adb5, 0.3);
         dirLight2.position.set(-5, -2, -5);
         scene.add(dirLight2);
 
-        // --- 2. BASE DE DATOS SIMULADA (Árbol de Activos) ---
+        // --- 2. BASE DE DATOS SIMULADA ---
         const baseDatosPiezas = {
             "Mecanismo_Suspension": { nombre: "Brazo de Suspensión Principal", id: "TELE-SUSP-001", crit: "Alta", estado: "Operativo" },
             "Mordaza_Agarre": { nombre: "Mordaza de Agarre al Cable", id: "TELE-MORD-042", crit: "Crítica", estado: "Desgaste Moderado" },
             "Cuerpo_Cabina": { nombre: "Chasis Exterior de Cabina", id: "TELE-CHAS-110", crit: "Media", estado: "Operativo" }
         };
 
-        // --- 3. MODELADO DE LA CABINA (Estructura geométrica modular) ---
+        // --- 3. MODELADO DE LA CABINA (Figuras básicas acopladas) ---
         const cabinaGrupo = new THREE.Group();
 
-        // Parte 1: Chasis / Cabina de pasajeros
+        // Chasis de la cabina
         const geoCuerpo = new THREE.BoxGeometry(3, 2.5, 2.5);
         const matCuerpo = new THREE.MeshStandardMaterial({ color: 0x2b4a5f, roughness: 0.4, metalness: 0.2 });
         const cuerpoMesh = new THREE.Mesh(geoCuerpo, matCuerpo);
         cuerpoMesh.name = "Cuerpo_Cabina";
         cabinaGrupo.add(cuerpoMesh);
 
-        // Parte 2: El brazo de suspensión telescópico
+        // Brazo de suspensión
         const geoSusp = new THREE.CylinderGeometry(0.12, 0.12, 2.8, 16);
         const matSusp = new THREE.MeshStandardMaterial({ color: 0x718096, roughness: 0.3, metalness: 0.6 });
         const suspMesh = new THREE.Mesh(geoSusp, matSusp);
@@ -220,7 +218,7 @@
         suspMesh.name = "Mecanismo_Suspension";
         cabinaGrupo.add(suspMesh);
 
-        // Parte 3: El sistema de mordaza / pinza superior
+        // Mordaza superior
         const geoMordaza = new THREE.BoxGeometry(1.4, 0.6, 0.7);
         const matMordaza = new THREE.MeshStandardMaterial({ color: 0x2d3748, roughness: 0.5, metalness: 0.7 });
         const mordazaMesh = new THREE.Mesh(geoMordaza, matMordaza);
@@ -239,10 +237,8 @@
         window.addEventListener('click', onMouseClick, false);
 
         function onMouseClick(event) {
-            // No activar el clic si el usuario interactúa con el panel de información
             if (event.target.closest('#info-panel')) return;
 
-            // Calcular la posición del mouse en coordenadas normalizadas
             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
@@ -252,24 +248,19 @@
             if (intersects.length > 0) {
                 const object = intersects[0].object;
 
-                // Si ya había una pieza seleccionada diferente, le devolvemos su color original
                 if (piezaSeleccionada && piezaSeleccionada !== object) {
                     piezaSeleccionada.material.color.setHex(colorOriginal);
                 }
 
-                // Configurar la nueva selección
                 if (piezaSeleccionada !== object) {
                     piezaSeleccionada = object;
                     colorOriginal = object.material.color.getHex();
                     
-                    // Resaltado visual de la pieza (Cyan dinámico)
+                    // Resaltado visual instantáneo en Cyan
                     object.material.color.setHex(0x00adb5);
-                    
-                    // Inyectar datos en el panel flotante
                     mostrarPanel(object.name);
                 }
             } else {
-                // Clic en el espacio vacío deselecciona la pieza actual
                 restaurarSeleccion();
             }
         }
@@ -281,9 +272,8 @@
                 document.getElementById('part-id').innerText = info.id;
                 document.getElementById('part-crit').innerText = info.crit;
                 document.getElementById('part-status').innerText = info.estado;
-                document.getElementById('falla-descripcion').value = ''; // Limpiar reporte anterior
+                document.getElementById('falla-descripcion').value = '';
                 
-                // Formato de color para la criticidad
                 const critEl = document.getElementById('part-crit');
                 if (info.crit === "Crítica") critEl.style.color = "#fc8181";
                 else if (info.crit === "Alta") critEl.style.color = "#f6ad55";
@@ -307,31 +297,24 @@
                 const info = baseDatosPiezas[piezaSeleccionada.name];
                 const reporteFalla = document.getElementById('falla-descripcion').value.trim() || "No se especificaron detalles.";
                 
-                // Estructura de datos que se enviaría a tu backend/CMMS real
-                const payloadOT = {
-                    ticket_id: Math.floor(Math.random() * 90000) + 10000,
-                    componente_id: info.id,
-                    componente_nombre: info.nombre,
-                    comentario: reporteFalla,
-                    fecha_emision: new Date().toLocaleDateString()
-                };
+                const ticket_id = Math.floor(Math.random() * 90000) + 10000;
 
-                alert(`🛠️ ORDEN DE TRABAJO GENERADA EMERGENCIAL\n\n` +
-                      `OT Número: #${payloadOT.ticket_id}\n` +
-                      `Componente afectado: ${payloadOT.componente_nombre} (${payloadOT.componente_id})\n` +
-                      `Reporte Técnico: "${payloadOT.comentario}"\n\n` +
-                      `Los datos han sido validados. El flujo está listo para conectarse con una API de mantenimiento.`);
+                alert(`🛠️ ORDEN DE TRABAJO GENERADA\n\n` +
+                      `OT Número: #${ticket_id}\n` +
+                      `Componente afectado: ${info.nombre} (${info.id})\n` +
+                      `Reporte Técnico: "${reporteFalla}"\n\n` +
+                      `¡El sistema simulado registró la orden con éxito!`);
                 
                 restaurarSeleccion();
             }
         }
 
-        // --- 6. ANIMACIÓN CONTINUA Y AJUSTE DE PANTALLA ---
+        // --- 6. ANIMACIÓN CONTINUA Y AJUSTE DE RESPONSIVIDAD ---
         function animate() {
             requestAnimationFrame(animate);
             controls.update();
             
-            // Rotación pasiva lenta cuando el usuario no está arrastrando la cabina
+            // Suave rotación si el usuario no interactúa
             if (controls.state === -1) {
                 cabinaGrupo.rotation.y += 0.0015;
             }
