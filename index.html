@@ -3,150 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GMAO Doppelmayr - Enfoque de Piezas 3D</title>
+    <title>GMAO Doppelmayr - CWA OMEGA V</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            overflow: hidden;
-            background-color: #0b0c10;
-            color: #fff;
-        }
-
-        #canvas-container {
-            width: 100vw;
-            height: 100vh;
-            display: block;
-        }
-
-        /* Panel Lateral de Gestión */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body { overflow: hidden; background-color: #07090e; color: #fff; }
+        #canvas-container { width: 100vw; height: 100vh; display: block; }
+        
+        /* Panel Técnico de Mantenimiento */
         #info-panel {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 380px;
-            background: rgba(15, 22, 36, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 2px solid #00fff2;
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 0 30px rgba(0, 255, 242, 0.25);
-            transition: all 0.3s ease;
-            display: none; 
-            z-index: 10;
+            position: absolute; top: 20px; right: 20px; width: 390px;
+            background: rgba(11, 16, 26, 0.94); backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px); border: 2px solid #00fff2;
+            border-radius: 12px; padding: 24px; box-shadow: 0 0 35px rgba(0, 255, 242, 0.25);
+            display: none; z-index: 10;
         }
-
-        h2 {
-            color: #00fff2;
-            margin-bottom: 14px;
-            font-size: 1.3rem;
-            border-bottom: 2px solid #00fff2;
-            padding-bottom: 6px;
-            text-transform: uppercase;
-        }
-
-        .data-group {
-            margin-bottom: 12px;
-        }
-
-        .data-label {
-            font-size: 0.75rem;
-            color: #a0aec0;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 2px;
-        }
-
-        .data-value {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #edf2f7;
-        }
-
-        .data-desc {
-            font-size: 0.85rem;
-            color: #e2e8f0;
-            background: rgba(255, 255, 255, 0.04);
-            padding: 10px;
-            border-radius: 6px;
-            margin-top: 4px;
-            line-height: 1.4;
-            border-left: 3px solid #00fff2;
-        }
-
-        .falla-input {
-            width: 100%;
-            background: #141722;
-            border: 1px solid #4a5568;
-            color: white;
-            padding: 10px;
-            border-radius: 6px;
-            margin-top: 6px;
-            resize: none;
-            font-size: 0.9rem;
-        }
-
-        .falla-input:focus {
-            outline: none;
-            border-color: #00fff2;
-        }
-
-        .btn-ot {
-            display: block;
-            width: 100%;
-            background: #ff5722;
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 1rem;
-            cursor: pointer;
-            margin-top: 12px;
-            transition: background 0.2s;
-            text-transform: uppercase;
-            box-shadow: 0 4px 15px rgba(255, 87, 34, 0.4);
-        }
-
+        h2 { color: #00fff2; margin-bottom: 6px; font-size: 1.3rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .sub-title { font-size: 0.85rem; color: #8a99ad; margin-bottom: 14px; border-bottom: 1px solid rgba(0,255,242,0.2); padding-bottom: 6px; }
+        .data-group { margin-bottom: 12px; }
+        .data-label { font-size: 0.72rem; color: #a0aec0; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+        .data-value { font-size: 0.95rem; font-weight: 600; color: #edf2f7; }
+        .data-desc { font-size: 0.85rem; color: #e2e8f0; background: rgba(255, 255, 255, 0.04); padding: 10px; border-radius: 6px; margin-top: 4px; line-height: 1.4; border-left: 3px solid #00fff2; }
+        .falla-input { width: 100%; background: #0f131a; border: 1px solid #4a5568; color: white; padding: 10px; border-radius: 6px; margin-top: 6px; resize: none; font-size: 0.9rem; }
+        .falla-input:focus { outline: none; border-color: #00fff2; }
+        
+        .btn-ot { display: block; width: 100%; background: #ff5722; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 15px; text-transform: uppercase; box-shadow: 0 4px 15px rgba(255, 87, 34, 0.4); transition: background 0.2s; }
         .btn-ot:hover { background: #e64a19; }
-
-        .btn-close {
-            display: block;
-            width: 100%;
-            background: #4a5568;
-            color: white;
-            border: none;
-            padding: 10px;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 0.9rem;
-            cursor: pointer;
-            margin-top: 8px;
-            transition: background 0.2s;
-            text-transform: uppercase;
-        }
-
-        .btn-close:hover { background: #718096; }
-
-        #instructions {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(13, 15, 18, 0.95);
-            border: 1px solid #00fff2;
-            padding: 12px 24px;
-            border-radius: 30px;
-            pointer-events: none;
-            font-size: 0.85rem;
-            text-align: center;
-        }
+        .btn-close { display: block; width: 100%; background: #334155; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 0.9rem; cursor: pointer; margin-top: 8px; text-transform: uppercase; transition: background 0.2s; }
+        .btn-close:hover { background: #475569; }
+        
+        #instructions { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(7, 9, 14, 0.95); border: 1px solid #00fff2; padding: 12px 24px; border-radius: 30px; pointer-events: none; font-size: 0.85rem; text-align: center; box-shadow: 0 0 20px rgba(0, 255, 242, 0.15); }
     </style>
     <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
     <script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -154,43 +39,44 @@
 <body>
 
     <div id="canvas-container"></div>
-    <div id="instructions">🛠️ Modo Auditoría: Haz clic en cualquier pieza para aislarla y ampliarla en 3D</div>
+    <div id="instructions">🖱️ Clic Izquierdo + Arrastrar: Rotación 3D Continua Libre | Clic en pieza para auditar</div>
 
     <div id="info-panel">
         <h2 id="part-name">Componente</h2>
+        <div class="sub-title">Especificación Original CWA Doppelmayr</div>
         
         <div class="data-group">
-            <div class="data-label">Código de Elemento</div>
+            <div class="data-label">Código de Elemento de Fábrica</div>
             <div id="part-id" class="data-value">-</div>
         </div>
         
         <div class="data-group">
-            <div class="data-label">Especificación / Ficha Técnica</div>
+            <div class="data-label">Ficha Técnica e Ingeniería</div>
             <div id="part-desc" class="data-desc">-</div>
         </div>
 
         <div class="data-group">
-            <div class="data-label">Criticidad Mantenimiento</div>
+            <div class="data-label">Criticidad Operativa</div>
             <div id="part-crit" class="data-value">-</div>
         </div>
 
         <div class="data-group">
             <div class="data-label">Reportar Daño u Observación para la OT</div>
-            <textarea id="falla-descripcion" class="falla-input" rows="3" placeholder="Ej: Fisura en acrílico, desgaste en rodillos de pinza..."></textarea>
+            <textarea id="falla-descripcion" class="falla-input" rows="3" placeholder="Ej: Desgaste excesivo detectado, programar cambio preventivo..."></textarea>
         </div>
 
         <button class="btn-ot" onclick="crearOrdenTrabajo()">Levantar Orden de Trabajo</button>
-        <button class="btn-close" onclick="restaurarEstado()">Regresar a Cabina</button>
+        <button class="btn-close" onclick="restaurarEstado()">Regresar a Vista General</button>
     </div>
 
     <script {twc-raw}>
-        // --- 1. CONFIGURACIÓN DEL ESCENARIO ---
+        // --- 1. CONFIGURACIÓN DEL ENTORNO ---
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x0b0c10);
+        scene.background = new THREE.Color(0x07090e); // Fondo técnico oscuro
 
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-        const posCamaraOriginal = new THREE.Vector3(0, 1.5, 7.5);
+        const posCamaraOriginal = new THREE.Vector3(4, 2.5, 7.5);
         camera.position.copy(posCamaraOriginal);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -204,59 +90,59 @@
         const centroOriginal = new THREE.Vector3(0, 0, 0);
         controls.target.copy(centroOriginal);
 
-        // --- ILUMINACIÓN VOLUMÉTRICA ---
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-        scene.add(ambientLight);
+        // --- ILUMINACIÓN CROSSED-STUDIO (MÁXIMO VOLUMEN Y REBOTE) ---
+        scene.add(new THREE.AmbientLight(0xffffff, 0.45));
         
-        const sunLight = new THREE.DirectionalLight(0xffffff, 1.5);
-        sunLight.position.set(5, 8, 5);
+        const sunLight = new THREE.DirectionalLight(0xffffff, 1.6); // Luz superior directa de volumen
+        sunLight.position.set(6, 10, 5);
         scene.add(sunLight);
 
-        const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
-        fillLight.position.set(-5, 3, 2);
-        scene.add(fillLight);
+        const backCyanLight = new THREE.DirectionalLight(0x00fff2, 1.4); // Destello cyan trasero para siluetas
+        backCyanLight.position.set(-6, 4, -6);
+        scene.add(backCyanLight);
 
-        const neonRimLight = new THREE.DirectionalLight(0x00fff2, 1.2); // Luz cyan trasera
-        neonRimLight.position.set(-4, 5, -5);
-        scene.add(neonRimLight);
+        const bottomReflect = new THREE.DirectionalLight(0xffffff, 0.5); // Luz inferior para iluminar estribos y piso
+        bottomReflect.position.set(0, -6, 0);
+        scene.add(bottomReflect);
 
-        // --- 2. BASE DE DATOS TÉCNICA (Doppelmayr) ---
+        // --- 2. BASE DE DATOS TÉCNICA OFICIAL (CWA OMEGA V) ---
         const baseDatosPiezas = {
-            "Mecanismo_Pinza": { nombre: "Pinza de Acoplamiento y Rodillos", id: "DOPP-PIN-A108", crit: "Crítica", desc: "Mecanismo de agarre desembragable al cable de acero. Distancia reglamentaria de operación: 60 metros entre cabinas." },
-            "Brazo_Suspension": { nombre: "Brazo de Suspensión Curvo", id: "DOPP-BRZ-OMEGA", crit: "Alta", desc: "Estructura principal de aluminio forjado de alta resistencia que conecta el chasis habitáculo con la pinza superior." },
-            "Amortiguador": { nombre: "Amortiguador de Torsión", id: "DOPP-AMOR-T", crit: "Alta", desc: "Bloque elástico de amortiguación dispuesto en el nodo de articulación superior para de frenar oscilaciones dinámicas." },
-            "Panel_Solar": { nombre: "Panel Solar Fotovoltaico", id: "DOPP-SOLAR-01", crit: "Media", desc: "Toma de energía renovable para la alimentación del sistema interno de iluminación led y altavoces de intercomunicación." },
-            "Bateria": { nombre: "Banco de Baterías de Respaldo", id: "DOPP-BAT-12V", crit: "Alta", desc: "Acumulador de energía encargado de sostener los sistemas eléctricos en ausencia de radiación solar directa." },
-            "Parachoques": { nombre: "Parachoques Laterales Elastómero", id: "DOPP-PAR-SIDE", crit: "Baja", desc: "Topes de protección contra impactos suaves en las zonas de embarque y almacenamiento en estaciones." },
-            "Puerta": { nombre: "Sistema de Puertas Corredizas", id: "DOPP-PORT-DBL", crit: "Alta", desc: "Mecanismo automático de desplazamiento lateral asistido. Apertura coordinada en ambos costados mecánicamente." },
-            "Apoyo_Pies": { nombre: "Apoyo para Pies / Estribo", id: "DOPP-FOOT-STP", crit: "Baja", desc: "Plataforma inferior de aluminio antideslizante para la asistencia de acceso de pasajeros a bordo." },
-            "Persianas": { nombre: "Persianas de Ventilación Inferior", id: "DOPP-VENT-INF", crit: "Baja", desc: "Rejillas de ventilación pasiva estructurales integradas para la circulación continua de aire fresco." },
-            "Chasis_Acrilico": { nombre: "Chasis Estructural y Acrílicos", id: "DOPP-CHAS-OMEGA", crit: "Media", desc: "Estructuras perimetrales de aluminio aeroespacial con ventanas panorámicas de acrílico de alta resistencia mecánica." }
+            "Mecanismo_Pinza": { nombre: "Pinza Desembragable D-Line", id: "CWA-DOPP-PZ108", crit: "Crítica", desc: "Mecanismo de acoplamiento de alta tecnología Doppelmayr D-Line. Garantiza el agarre continuo y seguro al cable de acero durante el trayecto de línea." },
+            "Brazo_Suspension": { nombre: "Hangar Curvo Integrado", id: "CWA-HNG-OMEGAV", crit: "Alta", desc: "Brazo estructural forjado que conecta la pinza con el habitáculo. Su diseño avanzado está visualmente integrado en el perfil superior del techo de la cabina." },
+            "Panel_Solar": { nombre: "Módulo Fotovoltaico de Techo", id: "CWA-SOL-FOTOV", crit: "Media", desc: "Panel solar integrado en la cubierta del techo. Genera energía limpia autónoma para alimentar la iluminación interior, altavoces y sistemas de intercomunicación." },
+            "Bateria": { nombre: "Acumulador / Banco de Baterías", id: "CWA-BAT-BUFF12V", crit: "Alta", desc: "Módulo acumulador oculto bajo el techo acústico. Respalda la energía de los sistemas críticos de la cabina ante la ausencia de radiación solar." },
+            "Parachoques": { nombre: "Amortiguadores Elastómeros", id: "CWA-BUMP-SIDE", crit: "Baja", desc: "Topes laterales perimetrales compuestos de elastómero resistente. Absorben impactos menores durante el ingreso y flujo en las estaciones." },
+            "Puerta": { nombre: "Puertas Mecánicas OMEGA V", id: "CWA-DOOR-900MM", crit: "Alta", desc: "Sistema doble corredizo con un ancho libre de apertura reglamentario de 900 mm. Facilita el acceso accesible y rápido de pasajeros." },
+            "Apoyo_Pies": { nombre: "Estribo de Acceso / Apoyo", id: "CWA-FOOT-ALUM", crit: "Baja", desc: "Plataforma inferior sólida de aluminio antideslizante. Diseñada para un acceso cómodo, nivelado y libre de barreras a la cabina." },
+            "Persianas": { nombre: "Sistema de Ventilación Pasiva", id: "CWA-VENT-PASIV", crit: "Baja", desc: "Conductos de ventilación integrados en el piso y ventanas corredizas en las puertas. Aseguran flujo constante de aire fresco libre de corrientes molestas." },
+            "Asientos": { nombre: "Asientos de Madera de Haya", id: "CWA-SEAT-BEECH", crit: "Media", desc: "Asientos individuales ergonómicos con núcleo de madera de haya de alta resistencia. Material con propiedades aislantes óptimo para regiones tropicales." },
+            "Chasis_Acrilico": { nombre: "Habitáculo OMEGA V de Aluminio", id: "CWA-CHAS-LIGHT", crit: "Media", desc: "Estructura principal de aluminio ligero de alta durabilidad CWA Olten. Incorpora vidrios panorámicos tintados con aerodinámica optimizada para vientos cruzados." }
         };
 
-        // --- 3. MODELADO SÓLIDO ---
+        // --- 3. MODELADO SÓLIDO DE ALTO CONTRASTE ---
         const cabinaGrupo = new THREE.Group();
         scene.add(cabinaGrupo);
         const estadoOriginales = new Map();
 
-        const matAluminio = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.15, metalness: 0.85 }); 
-        const matGrisMecanico = new THREE.MeshStandardMaterial({ color: 0x555d6b, roughness: 0.3, metalness: 0.5 }); 
-        const matCaucho = new THREE.MeshStandardMaterial({ color: 0x1e222b, roughness: 0.6, metalness: 0.1 }); 
-        const matVidrio = new THREE.MeshStandardMaterial({ color: 0x1a3a54, transparent: true, opacity: 0.45, roughness: 0.05, metalness: 0.4 }); 
-        const matSolar = new THREE.MeshStandardMaterial({ color: 0x1e40af, roughness: 0.1, metalness: 0.6 }); 
+        // Paleta de materiales sólidos reflectivos para eliminar transparencia fantasma
+        const matAluminioPulido = new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.12, metalness: 0.88 }); 
+        const matGrisAcero = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.25, metalness: 0.6 }); 
+        const matCauchoNegro = new THREE.MeshStandardMaterial({ color: 0x11141a, roughness: 0.6, metalness: 0.1 }); 
+        const matVidrioOMEGA = new THREE.MeshStandardMaterial({ color: 0x1e3a5f, transparent: true, opacity: 0.5, roughness: 0.05, metalness: 0.4 }); 
+        const matSolarAzul = new THREE.MeshStandardMaterial({ color: 0x1d4ed8, roughness: 0.1, metalness: 0.6 }); 
+        const matMaderaHaya = new THREE.MeshStandardMaterial({ color: 0xb45309, roughness: 0.4, metalness: 0.0 }); // Tono Haya/Madera del manual
 
         function registrarComponente(objeto, nombreClave) {
             objeto.name = nombreClave;
             cabinaGrupo.add(objeto);
             
-            // Calculamos el centro geométrico de este componente específico para saber dónde apuntar la cámara
             const box = new THREE.Box3().setFromObject(objeto);
-            const centroComponente = new THREE.Vector3();
-            box.getCenter(centroComponente);
+            const centroComp = new THREE.Vector3();
+            box.getCenter(centroComp);
 
             estadoOriginales.set(nombreClave, {
                 posicion: objeto.position.clone(),
-                centroMasa: centroComponente,
+                centroMasa: centroComp,
                 materiales: []
             });
 
@@ -270,69 +156,90 @@
             });
         }
 
-        // Ensamblaje de piezas (Mismo árbol estructural)
+        // A. Habitáculo Central y Cristales Panorámicos
         const chasisG = new THREE.Group();
-        chasisG.add(new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.8, 1.8), matVidrio));
-        const mSup = new THREE.Mesh(new THREE.BoxGeometry(2.26, 0.1, 1.86), matAluminio); mSup.position.y = 0.9;
+        chasisG.add(new THREE.Mesh(new THREE.BoxGeometry(2.3, 1.8, 1.8), matVidrioOMEGA));
+        const mSup = new THREE.Mesh(new THREE.BoxGeometry(2.36, 0.12, 1.86), matAluminioPulido); mSup.position.y = 0.9;
         const mInf = mSup.clone(); mInf.position.y = -0.9; chasisG.add(mSup, mInf);
+        const geoCol = new THREE.BoxGeometry(0.1, 1.8, 0.1);
+        const c1 = new THREE.Mesh(geoCol, matAluminioPulido); c1.position.set(1.15, 0, 0.9);
+        const c2 = c1.clone(); c2.position.set(-1.15, 0, 0.9);
+        const c3 = c1.clone(); c3.position.set(1.15, 0, -0.9);
+        const c4 = c1.clone(); c4.position.set(-1.15, 0, -0.9);
+        chasisG.add(c1, c2, c3, c4);
         registrarComponente(chasisG, "Chasis_Acrilico");
 
+        // B. Hangar / Brazo de Suspensión Curvo Integrado
         const brazoG = new THREE.Group();
-        const curva = new THREE.CatmullRomCurve3([new THREE.Vector3(0, 3.1, 0), new THREE.Vector3(-0.4, 2.3, 0), new THREE.Vector3(-0.4, 1.5, 0), new THREE.Vector3(0, 1.0, 0)]);
-        brazoG.add(new THREE.Mesh(new THREE.TubeGeometry(curva, 32, 0.14, 16, false), matAluminio));
+        const curva = new THREE.CatmullRomCurve3([new THREE.Vector3(0, 3.1, 0), new THREE.Vector3(-0.4, 2.3, 0), new THREE.Vector3(-0.4, 1.4, 0), new THREE.Vector3(0, 0.95, 0)]);
+        brazoG.add(new THREE.Mesh(new THREE.TubeGeometry(curva, 32, 0.15, 16, false), matAluminioPulido));
         registrarComponente(brazoG, "Brazo_Suspension");
 
+        // C. Amortiguador de Torsión Superior
         const amortG = new THREE.Group();
-        amortG.add(new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.22, 0.5), matCaucho)); amortG.position.set(-0.1, 1.05, 0);
+        amortG.add(new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.22, 0.5), matCauchoNegro)); amortG.position.set(-0.1, 1.05, 0);
         registrarComponente(amortG, "Amortiguador");
 
+        // D. Pinza D-Line Desembragable
         const pinzaG = new THREE.Group();
-        pinzaG.add(new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.35, 0.85), matGrisMecanico));
-        const r1 = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.12, 16), matAluminio); r1.rotation.z = Math.PI/2; r1.position.set(0.28, 0, 0.22);
-        const r2 = r1.clone(); r2.position.z = -0.22; pinzaG.add(r1, r2); pinzaG.position.y = 3.2;
+        pinzaG.add(new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.35, 0.9), matGrisAcero));
+        const r1 = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.12, 16), matAluminioPulido); r1.rotation.z = Math.PI/2; r1.position.set(0.3, 0, 0.25);
+        const r2 = r1.clone(); r2.position.z = -0.25; pinzaG.add(r1, r2); pinzaG.position.y = 3.2;
         registrarComponente(pinzaG, "Mecanismo_Pinza");
 
+        // E. Panel Solar Fotovoltaico de Techo
         const solarG = new THREE.Group();
-        const sol = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.05, 0.55), matSolar); sol.rotation.x = -0.3; solarG.add(sol); solarG.position.set(0.4, 1.03, 0.4);
+        const sol = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.04, 0.55), matSolarAzul); sol.rotation.x = -0.25; solarG.add(sol); solarG.position.set(0.4, 1.03, 0.4);
         registrarComponente(solarG, "Panel_Solar");
 
+        // F. Batería de Respaldo Oculta
         const batG = new THREE.Group();
-        batG.add(new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.22, 0.35), matGrisMecanico)); batG.position.set(0.4, 1.03, -0.4);
+        batG.add(new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.2, 0.35), matGrisAcero)); batG.position.set(0.4, 1.03, -0.4);
         registrarComponente(batG, "Bateria");
 
+        // G. Parachoques Elastómeros
         const paraG = new THREE.Group();
         const geoPara = new THREE.SphereGeometry(0.26, 16, 16); geoPara.scale(0.5, 1, 1.4);
-        const pL = new THREE.Mesh(geoPara, matCaucho); pL.position.set(1.1, -0.1, 0);
-        const pR = pL.clone(); pR.position.x = -1.1; paraG.add(pL, pR);
+        const pL = new THREE.Mesh(geoPara, matCauchoNegro); pL.position.set(1.16, -0.1, 0);
+        const pR = pL.clone(); pR.position.x = -1.16; paraG.add(pL, pR);
         registrarComponente(paraG, "Parachoques");
 
+        // H. Sistema de Puertas Corredizas (900 mm)
         const puertaG = new THREE.Group();
-        const pMarco = new THREE.Mesh(new THREE.BoxGeometry(0.04, 1.46, 0.76), matAluminio); pMarco.position.set(0, -0.1, 0.91); puertaG.add(pMarco);
+        const pM = new THREE.Mesh(new THREE.BoxGeometry(0.04, 1.44, 0.74), matAluminioPulido); pM.position.set(0, -0.1, 0.91); puertaG.add(pM);
         registrarComponente(puertaG, "Puerta");
 
+        // I. Estribo / Apoyo de Pies Antideslizante
         const pieG = new THREE.Group();
-        pieG.add(new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.06, 0.9), matAluminio)); pieG.position.set(0.6, -0.95, 0.91);
+        pieG.add(new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.05, 0.95), matAluminioPulido)); pieG.position.set(0.65, -0.95, 0.91);
         registrarComponente(pieG, "Apoyo_Pies");
 
+        // J. Rejillas de Persianas de Ventilación Inferior
         const ventG = new THREE.Group();
-        ventG.add(new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.2, 0.04), matGrisMecanico)); ventG.position.set(0, -0.6, 0.91);
+        ventG.add(new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.18, 0.04), matGrisAcero)); ventG.position.set(0, -0.6, 0.91);
         registrarComponente(ventG, "Persianas");
+
+        // K. Asientos de Madera de Haya (Vistos por dentro gracias a la transparencia del cristal)
+        const asientosG = new THREE.Group();
+        const geoAsiento = new THREE.BoxGeometry(0.4, 0.06, 1.5);
+        const a1 = new THREE.Mesh(geoAsiento, matMaderaHaya); a1.position.set(0.8, -0.4, 0);
+        const a2 = a1.clone(); a2.position.x = -0.8; asientosG.add(a1, a2);
+        registrarComponente(asientosG, "Asientos");
 
         cabinaGrupo.position.y = -1.0;
 
-        // --- 4. INTERACTIVIDAD CON ZOOM DE ENFOQUE CENTRAL ---
+        // --- 4. ANIMACIÓN FLUIDA POR LERP (INTERACTIVIDAD ABIERTA 3D) ---
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
         let componenteActivo = null;
 
-        // Variables de destino para la cámara e interpolación lineal (Lerp)
+        // Vectores dinámicos de destino para transiciones suaves de cámara
         let camaraDestinoPos = posCamaraOriginal.clone();
         let controlesDestinoTarget = centroOriginal.clone();
 
         window.addEventListener('click', onMouseClick, false);
 
         function onMouseClick(event) {
-            // Evitar que el clic en los botones o inputs mueva el modelo
             if (event.target.closest('#info-panel')) return;
 
             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -347,40 +254,35 @@
 
                 if (componenteActivo !== raiz) {
                     componenteActivo = raiz;
-                    aislarYEnfocarPieza(componenteActivo);
+                    
+                    // AISLAMIENTO VISUAL: Desvanecemos lo que no está seleccionado
+                    cabinaGrupo.children.forEach((modulo) => {
+                        modulo.traverse((child) => {
+                            if (child.isMesh) {
+                                child.material.transparent = true;
+                                child.material.opacity = (child.name === componenteActivo.name) ? 1.0 : 0.04;
+                            }
+                        });
+                    });
+
+                    // ENFOQUE DINÁMICO: Movemos el centro de rotación (target) a la pieza
+                    const datosOrig = estadoOriginales.get(componenteActivo.name);
+                    controlesDestinoTarget.copy(datosOrig.centroMasa).add(cabinaGrupo.position);
+                    
+                    // ZOOM AMORTIGUADO: Acercamos la cámara frontalmente a 1.8 metros del objeto
+                    camaraDestinoPos.copy(controlesDestinoTarget).add(new THREE.Vector3(0, 0.2, 1.8));
+
+                    mostrarPanel(componenteActivo.name);
                 }
             }
         }
 
-        function aislarYEnfocarPieza(componente) {
-            const datosOrig = estadoOriginales.get(componente.name);
-            if (!datosOrig) return;
-
-            // 1. Ocultamos por completo todas las demás piezas para limpiar el escenario
-            cabinaGrupo.children.forEach((modulo) => {
-                modulo.traverse((child) => {
-                    if (child.isMesh) {
-                        child.material.transparent = true;
-                        child.material.opacity = (child.name === componente.name) ? 1.0 : 0.0; // Desvanecido absoluto
-                    }
-                });
-            });
-
-            // 2. Apuntamos el centro de los controles directamente al corazón de la pieza
-            controlesDestinoTarget.copy(datosOrig.centroMasa).add(cabinaGrupo.position);
-
-            // 3. Acercamos la cámara (Zoom Inteligente) calculando una posición frontal cercana a la pieza
-            camaraDestinoPos.copy(controlesDestinoTarget).add(new THREE.Vector3(0, 0, 2.0)); // Zoom a 2 metros de distancia frontal
-
-            mostrarPanel(componente.name);
-        }
-
         function restaurarEstado() {
-            // 1. Regresamos la cámara y los controles a su punto de visualización inicial en grande
+            // Regresamos cámara y centro de órbita a los valores iniciales de fábrica
             camaraDestinoPos.copy(posCamaraOriginal);
             controlesDestinoTarget.copy(centroOriginal);
 
-            // 2. Volvemos a encender y visibilizar todos los módulos de la cabina
+            // Devolvemos las opacidades y transparencias originales a todos los componentes
             estadoOriginales.forEach((data) => {
                 data.materiales.forEach((m) => {
                     m.mesh.material.transparent = m.transparent;
@@ -413,26 +315,26 @@
         function crearOrdenTrabajo() {
             if (componenteActivo) {
                 const info = baseDatosPiezas[componenteActivo.name];
-                const comentario = document.getElementById('falla-descripcion').value.trim() || "Mantenimiento preventivo.";
-                alert(`📋 ORDEN DE TRABAJO ENVIADA\n\nComponente: ${info.nombre}\nCódigo: ${info.id}\nReporte: "${comentario}"`);
+                const comentario = document.getElementById('falla-descripcion').value.trim() || "Inspección rutinaria conforme manual CWA.";
+                alert(`🛠️ ORDEN DE TRABAJO PROCESADA (SISTEMA OMEGA V)\n\nElemento: ${info.nombre}\nCódigo: ${info.id}\nCriticidad: ${info.crit}\nReporte Técnico: "${comentario}"\n\nRegistrado correctamente en la bitácora de mantenimiento.`);
                 restaurarEstado();
             }
         }
 
-        // --- 5. LOOP DE ANIMACIÓN Y SUAVIDAD (LERP) ---
+        // --- 5. LOOP DE ANIMACIÓN CON INTERPOLACIÓN LERP ---
         function animate() {
             requestAnimationFrame(animate);
 
-            // Transición amortiguada fluida para la posición de la cámara y el centro del paneo
+            // Permite transiciones de zoom fluidas sin romper la libertad del OrbitControls
             camera.position.lerp(camaraDestinoPos, 0.08);
             controls.target.lerp(controlesDestinoTarget, 0.08);
             controls.update();
 
-            // Rotación automática únicamente en reposo global (Sin piezas seleccionadas)
+            // Rotación suave automática únicamente si no hay ninguna pieza en auditoría
             if (controls.state === -1 && !componenteActivo) {
-                cabinaGrupo.rotation.y += 0.0015;
+                cabinaGrupo.rotation.y += 0.0012;
             } else if (componenteActivo) {
-                cabinaGrupo.rotation.y = 0; // Bloqueo de rotación base para libre manipulación de la pieza aislada
+                cabinaGrupo.rotation.y = 0; // Se detiene para que el técnico la mueva libremente con su mouse
             }
 
             renderer.render(scene, camera);
